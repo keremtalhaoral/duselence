@@ -4,7 +4,7 @@ import { useState, useMemo } from 'react';
 import { format, differenceInWeeks } from 'date-fns';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
-import { useProgressStore } from '@/store/useProgressStore';
+import { useProgressStore, type WeeklyReview } from '@/store/useProgressStore';
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
   RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar,
@@ -40,8 +40,6 @@ function RatingSelector({ value, onChange, label }: { value: number; onChange: (
     </div>
   );
 }
-
-import type { WeeklyReview } from '@/store/useProgressStore';
 
 function ReviewAnalytics({ reviews }: { reviews: WeeklyReview[] }) {
   const trendData = useMemo(() => {
