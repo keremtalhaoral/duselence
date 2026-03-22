@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import Link from 'next/link';
 import { format } from 'date-fns';
 import { tr } from 'date-fns/locale';
@@ -12,11 +12,40 @@ import { userProfile } from '@/data/user';
 
 export default function AyarlarPage() {
   const { isDark, toggle } = useThemeStore();
-  const { programStartDate, setProgramStartDate } = useProgressStore();
+  const { programStartDate, setProgramStartDate, exportData, importData } = useProgressStore();
   const [startDate, setStartDate] = useState(programStartDate);
+  const [importStatus, setImportStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleSaveDate = () => {
     setProgramStartDate(startDate);
+  };
+
+  const handleExport = () => {
+    const json = exportData();
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `duselence-veri-${format(new Date(), 'yyyy-MM-dd')}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleImport = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const text = ev.target?.result as string;
+      const success = importData(text);
+      setImportStatus(success ? 'success' : 'error');
+      setTimeout(() => setImportStatus('idle'), 3000);
+    };
+    reader.readAsText(file);
+    if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
   const appointmentDate = new Date(userProfile.psychiatristAppointment.date);
@@ -60,6 +89,40 @@ export default function AyarlarPage() {
           </button>
         </div>
         <p className="text-xs text-[var(--text-tertiary)] mt-2">Mevcut: {programStartDate}</p>
+      </Card>
+
+      {/* Data Export/Import */}
+      <Card hover={false} padding="md">
+        <h2 className="text-sm font-semibold text-[var(--text-primary)] mb-3">Veri Yönetimi</h2>
+        <p className="text-xs text-[var(--text-secondary)] mb-3">
+          Tüm ilerleme, antrenman ve haftalık değerlendirme verilerini dışa/içe aktar.
+        </p>
+        <div className="flex gap-3">
+          <button
+            onClick={handleExport}
+            className="flex-1 py-2.5 rounded-xl bg-accent-blue text-white text-sm font-medium hover:bg-accent-blue/90 transition-colors"
+          >
+            Dışa Aktar (JSON)
+          </button>
+          <label className="flex-1">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".json"
+              onChange={handleImport}
+              className="hidden"
+            />
+            <div className="py-2.5 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-card)] text-sm font-medium text-[var(--text-primary)] text-center cursor-pointer hover:bg-[var(--bg-card-hover)] transition-colors">
+              İçe Aktar (JSON)
+            </div>
+          </label>
+        </div>
+        {importStatus === 'success' && (
+          <p className="text-xs text-accent-green mt-2 font-medium">Veriler başarıyla içe aktarıldı.</p>
+        )}
+        {importStatus === 'error' && (
+          <p className="text-xs text-accent-red mt-2 font-medium">Geçersiz dosya formatı.</p>
+        )}
       </Card>
 
       {/* User Profile */}

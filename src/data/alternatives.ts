@@ -31,4 +31,19 @@ export const alternatives: AlternativeExercise[] = [
   { originalId: 'front-squat-bilek', originalName: 'Front Squat', painArea: 'bilek', alternative: 'Cross Arm Front Squat veya Safety Bar', reason: 'Bilek dorsifleksiyonu gerekmez' },
   { originalId: 'ez-curl', originalName: 'EZ Bar Curl', painArea: 'bilek', alternative: 'Hammer Curl veya Cable Curl', reason: 'Nötr kavrama ile bilek stresi azalır' },
   { originalId: 'bench-press-bilek', originalName: 'Bench Press', painArea: 'bilek', alternative: 'Dumbbell Press (nötr kavrama)', reason: 'Bilek serbestçe döner, ekleme uyum sağlar' },
+
+  // Dirsek ağrısı
+  { originalId: 'ez-curl-dirsek', originalName: 'EZ Bar Curl', painArea: 'dirsek', alternative: 'Hammer Curl (dumbbell)', reason: 'Nötral tutuş dirsek stresini azaltır' },
+  { originalId: 'overhead-triceps', originalName: 'Overhead Triceps Extension', painArea: 'dirsek', alternative: 'Triceps Pushdown (rope)', reason: 'Overhead pozisyon olmadan triceps izolasyonu' },
+  { originalId: 'incline-curl', originalName: 'Incline Dumbbell Curl', painArea: 'dirsek', alternative: 'Preacher Curl (machine)', reason: 'Kontrollü ROM, dirsek sabit' },
+  { originalId: 'dips-dirsek', originalName: 'Dips', painArea: 'dirsek', alternative: 'Cable Pushdown', reason: 'Eklem baskısı düşük, kontrollü hareket' },
+
+  // Ayak bileği ağrısı
+  { originalId: 'standing-calf', originalName: 'Standing Calf Raise', painArea: 'ayak-bilegi', alternative: 'Seated Calf Raise (hafif)', reason: 'Oturarak ayak bileği yükü azalır' },
+  { originalId: 'walking-lunge-ayak', originalName: 'Walking Lunge', painArea: 'ayak-bilegi', alternative: 'Leg Press', reason: 'Ayak bileği dorsifleksiyon gerektirmez' },
+  { originalId: 'front-squat-ayak', originalName: 'Front Squat', painArea: 'ayak-bilegi', alternative: 'Front Squat (topuk altına plaka)', reason: 'Topuk yükseltme dorsifleksiyon ihtiyacını azaltır' },
 ];
+
+export function getAlternativesForPain(painArea: string): AlternativeExercise[] {
+  return alternatives.filter(a => a.painArea === painArea);
+}
