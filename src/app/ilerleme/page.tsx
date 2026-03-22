@@ -1,12 +1,15 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { format } from 'date-fns';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { useProgressStore } from '@/store/useProgressStore';
 import { userProfile } from '@/data/user';
+import {
+  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
+} from 'recharts';
 
 const keyLifts = [
   { id: 'bench-press', name: 'Bench Press' },
@@ -15,6 +18,14 @@ const keyLifts = [
   { id: 'overhead-press', name: 'Overhead Press' },
   { id: 'barbell-row', name: 'Barbell Row' },
 ];
+
+const liftColors: Record<string, string> = {
+  'bench-press': '#3b82f6',
+  'back-squat': '#22c55e',
+  'deadlift': '#ef4444',
+  'overhead-press': '#a855f7',
+  'barbell-row': '#f97316',
+};
 
 export default function IlerlemePage() {
   const { entries, addEntry, getLatestEntry } = useProgressStore();
@@ -51,6 +62,26 @@ export default function IlerlemePage() {
     ? ((userProfile.currentBodyFat - latest.bodyFat) / (userProfile.currentBodyFat - userProfile.targetBodyFat)) * 100
     : 0;
 
+  // Chart data
+  const bodyChartData = useMemo(() => {
+    return entries
+      .filter(e => e.weight || e.bodyFat)
+      .map(e => ({
+        date: e.date.slice(5), // MM-DD
+        kilo: e.weight ?? null,
+        yag: e.bodyFat ?? null,
+      }));
+  }, [entries]);
+
+  const strengthChartData = useMemo(() => {
+    return entries
+      .filter(e => e.oneRMs && Object.keys(e.oneRMs).length > 0)
+      .map(e => ({
+        date: e.date.slice(5),
+        ...e.oneRMs,
+      }));
+  }, [entries]);
+
   return (
     <div className="p-4 md:p-8 max-w-4xl mx-auto space-y-6">
       <h1 className="text-2xl font-bold gradient-text">İlerleme Takibi</h1>
@@ -79,6 +110,63 @@ export default function IlerlemePage() {
         </Card>
       </div>
 
+      {/* Body Composition Chart */}
+      {bodyChartData.length >= 2 && (
+        <Card hover={false} padding="md">
+          <h2 className="text-sm font-semibold text-[var(--text-primary)] mb-3">Vücut Kompozisyonu Trendi</h2>
+          <div className="h-[220px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={bodyChartData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border-card)" />
+                <XAxis dataKey="date" tick={{ fontSize: 10, fill: 'var(--text-tertiary)' }} />
+                <YAxis yAxisId="weight" tick={{ fontSize: 10, fill: 'var(--text-tertiary)' }} domain={['dataMin - 1', 'dataMax + 1']} />
+                <YAxis yAxisId="bf" orientation="right" tick={{ fontSize: 10, fill: 'var(--text-tertiary)' }} domain={['dataMin - 1', 'dataMax + 1']} />
+                <Tooltip
+                  contentStyle={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-card)', borderRadius: '12px', fontSize: '12px' }}
+                  labelStyle={{ color: 'var(--text-primary)' }}
+                />
+                <Legend wrapperStyle={{ fontSize: '11px' }} />
+                <Line yAxisId="weight" type="monotone" dataKey="kilo" name="Kilo (kg)" stroke="#3b82f6" strokeWidth={2} dot={{ r: 3 }} connectNulls />
+                <Line yAxisId="bf" type="monotone" dataKey="yag" name="Yağ (%)" stroke="#22c55e" strokeWidth={2} dot={{ r: 3 }} connectNulls />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </Card>
+      )}
+
+      {/* Strength Chart */}
+      {strengthChartData.length >= 2 && (
+        <Card hover={false} padding="md">
+          <h2 className="text-sm font-semibold text-[var(--text-primary)] mb-3">1RM Güç Trendi</h2>
+          <div className="h-[250px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={strengthChartData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border-card)" />
+                <XAxis dataKey="date" tick={{ fontSize: 10, fill: 'var(--text-tertiary)' }} />
+                <YAxis tick={{ fontSize: 10, fill: 'var(--text-tertiary)' }} />
+                <Tooltip
+                  contentStyle={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-card)', borderRadius: '12px', fontSize: '12px' }}
+                  labelStyle={{ color: 'var(--text-primary)' }}
+                />
+                <Legend wrapperStyle={{ fontSize: '11px' }} />
+                {keyLifts.map(lift => (
+                  <Line
+                    key={lift.id}
+                    type="monotone"
+                    dataKey={lift.id}
+                    name={lift.name}
+                    stroke={liftColors[lift.id]}
+                    strokeWidth={2}
+                    dot={{ r: 3 }}
+                    connectNulls
+                  />
+                ))}
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </Card>
+      )}
+
       {/* 1RM Records */}
       <Card hover={false} padding="md">
         <h2 className="text-sm font-semibold text-[var(--text-primary)] mb-3">1RM Kayıtları</h2>
@@ -90,7 +178,10 @@ export default function IlerlemePage() {
               .find(e => e.oneRMs?.[lift.id])?.oneRMs?.[lift.id];
             return (
               <div key={lift.id} className="flex items-center justify-between py-1.5 border-b border-[var(--border-card)] last:border-0">
-                <span className="text-sm text-[var(--text-secondary)]">{lift.name}</span>
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full" style={{ backgroundColor: liftColors[lift.id] }} />
+                  <span className="text-sm text-[var(--text-secondary)]">{lift.name}</span>
+                </div>
                 <span className="text-sm font-semibold text-[var(--text-primary)]">
                   {latestRM ? `${latestRM}kg` : '—'}
                 </span>
@@ -175,9 +266,12 @@ export default function IlerlemePage() {
             {entries.slice().reverse().map((entry, i) => (
               <div key={i} className="flex items-center justify-between py-2 border-b border-[var(--border-card)] last:border-0">
                 <span className="text-xs text-[var(--text-tertiary)]">{entry.date}</span>
-                <div className="flex gap-3">
+                <div className="flex gap-2">
                   {entry.weight && <Badge variant="blue">{entry.weight}kg</Badge>}
                   {entry.bodyFat && <Badge variant="green">%{entry.bodyFat}</Badge>}
+                  {entry.oneRMs && Object.keys(entry.oneRMs).length > 0 && (
+                    <Badge variant="purple">{Object.keys(entry.oneRMs).length} 1RM</Badge>
+                  )}
                 </div>
               </div>
             ))}

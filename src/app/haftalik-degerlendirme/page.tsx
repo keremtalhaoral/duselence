@@ -5,6 +5,10 @@ import { format, differenceInWeeks } from 'date-fns';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { useProgressStore } from '@/store/useProgressStore';
+import {
+  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
+  RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar,
+} from 'recharts';
 
 const muscleGroups = ['Göğüs', 'Sırt', 'Omuz', 'Biceps', 'Triceps', 'Quadriceps', 'Hamstring', 'Kalça', 'Core'];
 const joints = ['Omuz eklemi', 'Dirsek', 'Bilek', 'Bel', 'Diz', 'Ayak bileği'];
@@ -33,6 +37,113 @@ function RatingSelector({ value, onChange, label }: { value: number; onChange: (
           </button>
         ))}
       </div>
+    </div>
+  );
+}
+
+import type { WeeklyReview } from '@/store/useProgressStore';
+
+function ReviewAnalytics({ reviews }: { reviews: WeeklyReview[] }) {
+  const trendData = useMemo(() => {
+    return reviews.map(r => ({
+      week: `H${r.weekNumber}`,
+      uyku: r.sleep,
+      stres: r.stress,
+      kasZihin: r.mindMuscle,
+    }));
+  }, [reviews]);
+
+  const latestReview = reviews[reviews.length - 1];
+
+  const radarData = useMemo(() => {
+    if (!latestReview) return [];
+    return muscleGroups.map(mg => ({
+      kas: mg,
+      yorgunluk: latestReview.fatigue[mg] || 0,
+    }));
+  }, [latestReview]);
+
+  const jointTrendData = useMemo(() => {
+    return reviews.map(r => {
+      const entry: Record<string, string | number> = { week: `H${r.weekNumber}` };
+      for (const j of joints) {
+        entry[j] = r.jointPain[j] || 0;
+      }
+      return entry;
+    });
+  }, [reviews]);
+
+  if (reviews.length < 2) return null;
+
+  return (
+    <div className="space-y-4">
+      <h2 className="text-lg font-bold gradient-text">Trend Analizi</h2>
+
+      {/* Sleep / Stress / Mind-Muscle Trend */}
+      <Card hover={false} padding="md">
+        <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-3">Uyku / Stres / Kas-Zihin Trendi</h3>
+        <div className="h-[220px]">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={trendData}>
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--border-card)" />
+              <XAxis dataKey="week" tick={{ fontSize: 10, fill: 'var(--text-tertiary)' }} />
+              <YAxis domain={[0, 5]} tick={{ fontSize: 10, fill: 'var(--text-tertiary)' }} />
+              <Tooltip
+                contentStyle={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-card)', borderRadius: '12px', fontSize: '12px' }}
+                labelStyle={{ color: 'var(--text-primary)' }}
+              />
+              <Legend wrapperStyle={{ fontSize: '11px' }} />
+              <Line type="monotone" dataKey="uyku" name="Uyku" stroke="#3b82f6" strokeWidth={2} dot={{ r: 3 }} />
+              <Line type="monotone" dataKey="stres" name="Stres" stroke="#ef4444" strokeWidth={2} dot={{ r: 3 }} />
+              <Line type="monotone" dataKey="kasZihin" name="Kas-Zihin" stroke="#22c55e" strokeWidth={2} dot={{ r: 3 }} />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+      </Card>
+
+      {/* Muscle Fatigue Radar */}
+      {radarData.length > 0 && (
+        <Card hover={false} padding="md">
+          <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-3">Kas Yorgunluğu Haritası (Son Hafta)</h3>
+          <div className="h-[280px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <RadarChart cx="50%" cy="50%" outerRadius="70%" data={radarData}>
+                <PolarGrid stroke="var(--border-card)" />
+                <PolarAngleAxis dataKey="kas" tick={{ fontSize: 9, fill: 'var(--text-secondary)' }} />
+                <PolarRadiusAxis domain={[0, 5]} tick={{ fontSize: 8, fill: 'var(--text-tertiary)' }} />
+                <Radar name="Yorgunluk" dataKey="yorgunluk" stroke="#ef4444" fill="#ef4444" fillOpacity={0.25} strokeWidth={2} />
+              </RadarChart>
+            </ResponsiveContainer>
+          </div>
+        </Card>
+      )}
+
+      {/* Joint Pain Trend */}
+      {jointTrendData.length >= 2 && (
+        <Card hover={false} padding="md">
+          <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-3">Eklem Ağrısı Trendi</h3>
+          <div className="h-[220px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={jointTrendData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border-card)" />
+                <XAxis dataKey="week" tick={{ fontSize: 10, fill: 'var(--text-tertiary)' }} />
+                <YAxis domain={[0, 5]} tick={{ fontSize: 10, fill: 'var(--text-tertiary)' }} />
+                <Tooltip
+                  contentStyle={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-card)', borderRadius: '12px', fontSize: '12px' }}
+                  labelStyle={{ color: 'var(--text-primary)' }}
+                />
+                <Legend wrapperStyle={{ fontSize: '10px' }} />
+                <Line type="monotone" dataKey="Omuz eklemi" name="Omuz" stroke="#ef4444" strokeWidth={1.5} dot={{ r: 2 }} />
+                <Line type="monotone" dataKey="Dirsek" name="Dirsek" stroke="#f97316" strokeWidth={1.5} dot={{ r: 2 }} />
+                <Line type="monotone" dataKey="Bilek" name="Bilek" stroke="#eab308" strokeWidth={1.5} dot={{ r: 2 }} />
+                <Line type="monotone" dataKey="Bel" name="Bel" stroke="#a855f7" strokeWidth={1.5} dot={{ r: 2 }} />
+                <Line type="monotone" dataKey="Diz" name="Diz" stroke="#3b82f6" strokeWidth={1.5} dot={{ r: 2 }} />
+                <Line type="monotone" dataKey="Ayak bileği" name="Ayak bileği" stroke="#06b6d4" strokeWidth={1.5} dot={{ r: 2 }} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </Card>
+      )}
     </div>
   );
 }
@@ -76,8 +187,15 @@ export default function HaftalikDegerlendirmePage() {
             <p className="text-4xl mb-4">OK</p>
             <h2 className="text-lg font-bold text-[var(--text-primary)] mb-2">Değerlendirme Kaydedildi</h2>
             <p className="text-sm text-[var(--text-secondary)]">Hafta {currentWeek} değerlendirmen kaydedildi.</p>
+            <button
+              onClick={() => setSubmitted(false)}
+              className="mt-4 px-4 py-2 rounded-xl bg-accent-blue text-white text-sm font-medium hover:bg-accent-blue/90 transition-colors"
+            >
+              Geri Dön
+            </button>
           </div>
         </Card>
+        <ReviewAnalytics reviews={weeklyReviews} />
       </div>
     );
   }
@@ -152,6 +270,9 @@ export default function HaftalikDegerlendirmePage() {
           Değerlendirmeyi Kaydet
         </button>
       </form>
+
+      {/* Analytics */}
+      <ReviewAnalytics reviews={weeklyReviews} />
 
       {/* Previous reviews */}
       {weeklyReviews.length > 0 && (

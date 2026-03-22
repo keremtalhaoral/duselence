@@ -1,11 +1,13 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import Link from 'next/link';
+import { format } from 'date-fns';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Accordion } from '@/components/ui/Accordion';
 import { workoutDays, type Exercise } from '@/data/workouts';
+import { useProgressStore } from '@/store/useProgressStore';
 
 const fctGroupColors: Record<string, 'purple' | 'blue' | 'cyan' | 'green'> = {
   A: 'purple',
@@ -57,8 +59,174 @@ function ExerciseCard({ exercise, showFCTLabel }: { exercise: Exercise; showFCTL
   );
 }
 
+interface SetLog {
+  weight: string;
+  reps: string;
+  rpe: string;
+  completed: boolean;
+}
+
+function WorkoutLogger({ workout }: { workout: typeof workoutDays[0] }) {
+  const { addWorkout, workouts } = useProgressStore();
+  const today = format(new Date(), 'yyyy-MM-dd');
+  const alreadyLogged = workouts.some(w => w.date === today && w.workoutId === workout.id);
+
+  const [exerciseSets, setExerciseSets] = useState<Record<string, SetLog[]>>(() => {
+    const initial: Record<string, SetLog[]> = {};
+    for (const ex of workout.exercises) {
+      initial[ex.id] = Array.from({ length: ex.sets }, () => ({
+        weight: '',
+        reps: '',
+        rpe: '',
+        completed: false,
+      }));
+    }
+    return initial;
+  });
+  const [notes, setNotes] = useState('');
+  const [saved, setSaved] = useState(alreadyLogged);
+
+  const updateSet = (exId: string, setIdx: number, field: keyof SetLog, value: string | boolean) => {
+    setExerciseSets(prev => {
+      const next = { ...prev };
+      next[exId] = [...next[exId]];
+      next[exId][setIdx] = { ...next[exId][setIdx], [field]: value };
+      return next;
+    });
+  };
+
+  const handleSave = () => {
+    const exercises: Record<string, { sets: { weight: number; reps: number; rpe?: number; completed: boolean }[] }> = {};
+    for (const [exId, sets] of Object.entries(exerciseSets)) {
+      exercises[exId] = {
+        sets: sets.map(s => ({
+          weight: parseFloat(s.weight) || 0,
+          reps: parseInt(s.reps) || 0,
+          rpe: s.rpe ? parseFloat(s.rpe) : undefined,
+          completed: s.completed,
+        })),
+      };
+    }
+    addWorkout({
+      date: today,
+      workoutId: workout.id,
+      exercises,
+      notes: notes || undefined,
+    });
+    setSaved(true);
+  };
+
+  const totalSets = Object.values(exerciseSets).flat().length;
+  const completedSets = Object.values(exerciseSets).flat().filter(s => s.completed).length;
+
+  if (saved) {
+    return (
+      <Card hover={false} padding="lg">
+        <div className="text-center py-4">
+          <p className="text-3xl mb-2">&#10003;</p>
+          <h3 className="text-sm font-bold text-[var(--text-primary)] mb-1">Antrenman Kaydedildi</h3>
+          <p className="text-xs text-[var(--text-secondary)]">{today} &mdash; {workout.shortName}</p>
+        </div>
+      </Card>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      <Card hover={false} padding="md">
+        <div className="flex items-center justify-between mb-2">
+          <h2 className="text-sm font-semibold gradient-text">Antrenman Kaydi</h2>
+          <Badge variant="blue">{completedSets}/{totalSets} set</Badge>
+        </div>
+        <div className="w-full bg-[var(--bg-secondary)] rounded-full h-2">
+          <div
+            className="bg-accent-blue h-2 rounded-full transition-all duration-300"
+            style={{ width: `${totalSets > 0 ? (completedSets / totalSets) * 100 : 0}%` }}
+          />
+        </div>
+      </Card>
+
+      {workout.exercises.map(ex => (
+        <Card key={ex.id} hover={false} padding="md">
+          <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-3">{ex.name}</h3>
+
+          {/* Header */}
+          <div className="grid grid-cols-[auto_1fr_1fr_1fr_auto] gap-2 mb-2 text-[10px] text-[var(--text-tertiary)] font-medium">
+            <span className="w-6 text-center">Set</span>
+            <span>Kilo(kg)</span>
+            <span>Tekrar</span>
+            <span>RPE</span>
+            <span className="w-8 text-center">OK</span>
+          </div>
+
+          {/* Sets */}
+          {(exerciseSets[ex.id] || []).map((setData, si) => (
+            <div key={si} className="grid grid-cols-[auto_1fr_1fr_1fr_auto] gap-2 mb-1.5 items-center">
+              <span className="w-6 text-center text-xs text-[var(--text-tertiary)] font-medium">{si + 1}</span>
+              <input
+                type="number"
+                step="2.5"
+                value={setData.weight}
+                onChange={e => updateSet(ex.id, si, 'weight', e.target.value)}
+                className="px-2 py-1.5 rounded-lg bg-[var(--bg-secondary)] border border-[var(--border-card)] text-xs text-[var(--text-primary)] focus:outline-none focus:ring-1 focus:ring-accent-blue/50"
+                placeholder="—"
+              />
+              <input
+                type="number"
+                value={setData.reps}
+                onChange={e => updateSet(ex.id, si, 'reps', e.target.value)}
+                className="px-2 py-1.5 rounded-lg bg-[var(--bg-secondary)] border border-[var(--border-card)] text-xs text-[var(--text-primary)] focus:outline-none focus:ring-1 focus:ring-accent-blue/50"
+                placeholder="—"
+              />
+              <input
+                type="number"
+                step="0.5"
+                min="1"
+                max="10"
+                value={setData.rpe}
+                onChange={e => updateSet(ex.id, si, 'rpe', e.target.value)}
+                className="px-2 py-1.5 rounded-lg bg-[var(--bg-secondary)] border border-[var(--border-card)] text-xs text-[var(--text-primary)] focus:outline-none focus:ring-1 focus:ring-accent-blue/50"
+                placeholder="—"
+              />
+              <button
+                type="button"
+                onClick={() => updateSet(ex.id, si, 'completed', !setData.completed)}
+                className={`w-8 h-8 rounded-lg text-xs font-bold transition-all ${
+                  setData.completed
+                    ? 'bg-accent-green text-white'
+                    : 'bg-[var(--bg-secondary)] text-[var(--text-tertiary)] border border-[var(--border-card)]'
+                }`}
+              >
+                {setData.completed ? '✓' : '○'}
+              </button>
+            </div>
+          ))}
+        </Card>
+      ))}
+
+      <Card hover={false} padding="md">
+        <label className="block text-xs text-[var(--text-tertiary)] mb-1">Notlar</label>
+        <textarea
+          value={notes}
+          onChange={e => setNotes(e.target.value)}
+          className="w-full px-3 py-2 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-card)] text-sm text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-accent-blue/50 min-h-[60px] resize-none"
+          placeholder="Antrenman notlari..."
+        />
+      </Card>
+
+      <button
+        onClick={handleSave}
+        className="w-full py-3 rounded-xl bg-accent-green text-white font-semibold text-sm hover:bg-accent-green/90 transition-colors"
+      >
+        Antrenmanı Kaydet
+      </button>
+    </div>
+  );
+}
+
 export function WorkoutContent({ gun }: { gun: string }) {
   const workout = useMemo(() => workoutDays.find((w) => w.id === gun), [gun]);
+  const [showLogger, setShowLogger] = useState(false);
 
   if (!workout) {
     return (
@@ -99,53 +267,83 @@ export function WorkoutContent({ gun }: { gun: string }) {
         </div>
       </div>
 
-      <Accordion title="Isinma" icon="*" defaultOpen>
-        <p>{workout.warmup}</p>
-      </Accordion>
+      {/* Toggle between view and log mode */}
+      <div className="flex gap-2">
+        <button
+          onClick={() => setShowLogger(false)}
+          className={`flex-1 py-2 rounded-xl text-sm font-medium transition-colors ${
+            !showLogger
+              ? 'bg-accent-blue text-white'
+              : 'bg-[var(--bg-secondary)] text-[var(--text-secondary)]'
+          }`}
+        >
+          Program
+        </button>
+        <button
+          onClick={() => setShowLogger(true)}
+          className={`flex-1 py-2 rounded-xl text-sm font-medium transition-colors ${
+            showLogger
+              ? 'bg-accent-green text-white'
+              : 'bg-[var(--bg-secondary)] text-[var(--text-secondary)]'
+          }`}
+        >
+          Kayit Yap
+        </button>
+      </div>
 
-      {isFCT && fctExercises.length > 0 && (
-        <div className="space-y-3">
-          <div>
-            <h2 className="font-semibold text-sm gradient-text mb-1">FCT Devresi</h2>
-            <Card hover={false} padding="sm">
-              <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
-                <span className="font-semibold text-[var(--text-primary)]">Devre Yapisi:</span>{' '}
-                A &rarr; 15 sn &rarr; B &rarr; 15 sn &rarr; C &rarr; 15 sn &rarr; D &rarr; 3 dk dinlenme
-              </p>
-              <p className="text-xs text-[var(--text-secondary)] mt-1">
-                Toplam <span className="font-semibold">4 tur</span> tekrarla
-              </p>
-            </Card>
-          </div>
-          <div className="space-y-3">
-            {fctExercises.map((exercise) => (
-              <ExerciseCard key={exercise.id} exercise={exercise} showFCTLabel />
-            ))}
-          </div>
-        </div>
+      {showLogger ? (
+        <WorkoutLogger workout={workout} />
+      ) : (
+        <>
+          <Accordion title="Isinma" icon="*" defaultOpen>
+            <p>{workout.warmup}</p>
+          </Accordion>
+
+          {isFCT && fctExercises.length > 0 && (
+            <div className="space-y-3">
+              <div>
+                <h2 className="font-semibold text-sm gradient-text mb-1">FCT Devresi</h2>
+                <Card hover={false} padding="sm">
+                  <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
+                    <span className="font-semibold text-[var(--text-primary)]">Devre Yapisi:</span>{' '}
+                    A &rarr; 15 sn &rarr; B &rarr; 15 sn &rarr; C &rarr; 15 sn &rarr; D &rarr; 3 dk dinlenme
+                  </p>
+                  <p className="text-xs text-[var(--text-secondary)] mt-1">
+                    Toplam <span className="font-semibold">4 tur</span> tekrarla
+                  </p>
+                </Card>
+              </div>
+              <div className="space-y-3">
+                {fctExercises.map((exercise) => (
+                  <ExerciseCard key={exercise.id} exercise={exercise} showFCTLabel />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {isFCT && afterExercises.length > 0 && (
+            <div className="space-y-3">
+              <h2 className="font-semibold text-sm gradient-text">Devre Sonrasi Hareketler</h2>
+              {afterExercises.map((exercise) => (
+                <ExerciseCard key={exercise.id} exercise={exercise} showFCTLabel={false} />
+              ))}
+            </div>
+          )}
+
+          {!isFCT && (
+            <div className="space-y-3">
+              <h2 className="font-semibold text-sm gradient-text">Hareketler</h2>
+              {workout.exercises.map((exercise) => (
+                <ExerciseCard key={exercise.id} exercise={exercise} showFCTLabel={false} />
+              ))}
+            </div>
+          )}
+
+          <Accordion title="Soguma" icon="*">
+            <p>{workout.cooldown}</p>
+          </Accordion>
+        </>
       )}
-
-      {isFCT && afterExercises.length > 0 && (
-        <div className="space-y-3">
-          <h2 className="font-semibold text-sm gradient-text">Devre Sonrasi Hareketler</h2>
-          {afterExercises.map((exercise) => (
-            <ExerciseCard key={exercise.id} exercise={exercise} showFCTLabel={false} />
-          ))}
-        </div>
-      )}
-
-      {!isFCT && (
-        <div className="space-y-3">
-          <h2 className="font-semibold text-sm gradient-text">Hareketler</h2>
-          {workout.exercises.map((exercise) => (
-            <ExerciseCard key={exercise.id} exercise={exercise} showFCTLabel={false} />
-          ))}
-        </div>
-      )}
-
-      <Accordion title="Soguma" icon="*">
-        <p>{workout.cooldown}</p>
-      </Accordion>
 
       <div className="pt-2 pb-4">
         <Link href="/antrenman" className="inline-flex items-center gap-1.5 text-sm font-medium text-accent-blue hover:underline">

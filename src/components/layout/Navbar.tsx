@@ -8,6 +8,7 @@ const navItems = [
   { href: '/', label: 'Ana Sayfa', icon: '🏠' },
   { href: '/antrenman', label: 'Antrenman', icon: '💪' },
   { href: '/takviye', label: 'Takviye', icon: '💊' },
+  { href: '/beslenme', label: 'Beslenme', icon: '🍽️' },
   { href: '/protokol', label: 'Protokol', icon: '📋' },
   { href: '/ilerleme', label: 'İlerleme', icon: '📊' },
   { href: '/ayarlar', label: 'Ayarlar', icon: '⚙️' },
@@ -22,7 +23,7 @@ export function Navbar() {
       {/* Mobile bottom nav */}
       <nav className="fixed bottom-0 left-0 right-0 z-50 glass-nav md:hidden safe-area-bottom">
         <div className="flex items-center justify-around h-16 px-2">
-          {navItems.slice(0, 5).map((item) => {
+          {navItems.slice(0, 6).map((item) => {
             const isActive = pathname === item.href ||
               (item.href !== '/' && pathname.startsWith(item.href));
             return (
