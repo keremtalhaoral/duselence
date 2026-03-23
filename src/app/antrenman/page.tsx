@@ -16,20 +16,6 @@ function getWeekNumber(startDate: string): number {
   return Math.max(1, diffWeeks + 1);
 }
 
-const muscleLabels: Record<string, string> = {
-  'gogus': 'Gogus',
-  'sirt': 'Sirt',
-  'omuz': 'Omuz',
-  'biceps': 'Biceps',
-  'triceps': 'Triceps',
-  'quadriceps': 'Quadriceps',
-  'hamstring': 'Hamstring',
-  'kalca': 'Kalca',
-  'baldir': 'Baldir',
-  'core': 'Core',
-  'on kol': 'On Kol',
-};
-
 export default function AntrenmanPage() {
   const programStartDate = useProgressStore((s) => s.programStartDate);
 
@@ -41,13 +27,13 @@ export default function AntrenmanPage() {
     <div className="px-4 py-6 md:px-8 max-w-3xl mx-auto space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold gradient-text">Antrenman Programi</h1>
+        <h1 className="text-2xl font-bold gradient-text">Antrenman Programı</h1>
         <p className="text-sm text-[var(--text-secondary)] mt-1">
-          Haftalik 4 gun Upper/Lower split
+          Upper/Lower — FCT + Heavy | 4 gün/hafta
         </p>
       </div>
 
-      {/* Periodization Phase Info */}
+      {/* Periyodizasyon Fazı */}
       <Card hover={false} padding="md">
         <div className="flex items-center gap-3 mb-2">
           <div
@@ -64,24 +50,29 @@ export default function AntrenmanPage() {
         </p>
         <div className="grid grid-cols-2 gap-2 text-xs">
           <div className="flex flex-col gap-0.5">
-            <span className="text-[var(--text-tertiary)]">Yogunluk</span>
-            <span className="font-medium">{phase.intensityRange}</span>
+            <span className="text-[var(--text-tertiary)]">FCT Yükü</span>
+            <span className="font-medium">{phase.fctLoad}</span>
+          </div>
+          <div className="flex flex-col gap-0.5">
+            <span className="text-[var(--text-tertiary)]">Heavy Yükü</span>
+            <span className="font-medium">{phase.heavyLoad}</span>
           </div>
           <div className="flex flex-col gap-0.5">
             <span className="text-[var(--text-tertiary)]">RPE Hedef</span>
             <span className="font-medium">{phase.rpeTarget}</span>
           </div>
-          <div className="flex flex-col gap-0.5 col-span-2">
-            <span className="text-[var(--text-tertiary)]">Progresyon</span>
-            <span className="font-medium">{phase.progressionRule}</span>
+          <div className="flex flex-col gap-0.5">
+            <span className="text-[var(--text-tertiary)]">Aksesuar</span>
+            <span className="font-medium">{phase.accessoryLoad}</span>
           </div>
         </div>
       </Card>
 
-      {/* Workout Day Cards */}
+      {/* Antrenman Günleri */}
       <div className="space-y-3">
         {workoutDays.map((workout) => {
           const isFCT = workout.type === 'fct';
+          const totalExercises = workout.sections.reduce((sum, s) => sum + s.exercises.length, 0);
 
           return (
             <Link key={workout.id} href={`/antrenman/${workout.id}`}>
@@ -90,7 +81,7 @@ export default function AntrenmanPage() {
                   <div className="min-w-0">
                     <h3 className="font-semibold text-sm truncate">{workout.name}</h3>
                     <p className="text-xs text-[var(--text-tertiary)] mt-0.5">
-                      {workout.shortName}
+                      {workout.subtitle}
                     </p>
                   </div>
                   <Badge variant={isFCT ? 'purple' : 'orange'} size="sm">
@@ -108,12 +99,16 @@ export default function AntrenmanPage() {
 
                 <div className="flex items-center gap-4 text-xs text-[var(--text-secondary)]">
                   <span className="flex items-center gap-1">
-                    <span className="text-[var(--text-tertiary)]">Sure:</span>
+                    <span className="text-[var(--text-tertiary)]">Süre:</span>
                     <span className="font-medium">~{workout.estimatedDuration} dk</span>
                   </span>
                   <span className="flex items-center gap-1">
                     <span className="text-[var(--text-tertiary)]">Hareket:</span>
-                    <span className="font-medium">{workout.exercises.length}</span>
+                    <span className="font-medium">{totalExercises}</span>
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <span className="text-[var(--text-tertiary)]">Bölüm:</span>
+                    <span className="font-medium">{workout.sections.length}</span>
                   </span>
                 </div>
               </Card>

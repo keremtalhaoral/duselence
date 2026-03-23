@@ -41,9 +41,9 @@ const TIMING_ICONS: Record<TimingSlot, string> = {
 
 const SEVERITY_CONFIG: Record<string, { badge: 'critical' | 'red' | 'orange' | 'blue' | 'green'; label: string }> = {
   critical: { badge: 'critical', label: 'Kritik' },
-  warning: { badge: 'orange', label: 'Uyari' },
+  warning: { badge: 'orange', label: 'Uyarı' },
   info: { badge: 'blue', label: 'Bilgi' },
-  safe: { badge: 'green', label: 'Guvenli' },
+  safe: { badge: 'green', label: 'Güvenli' },
 };
 
 const CATEGORY_BADGES: Record<string, 'blue' | 'green' | 'red' | 'purple' | 'orange' | 'cyan'> = {
@@ -119,7 +119,7 @@ export default function TakviyePage() {
     return map;
   }, []);
 
-  const dayNames = ['Pazartesi', 'Sali', 'Carsamba', 'Persembe', 'Cuma', 'Cumartesi', 'Pazar'];
+  const dayNames = ['Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi', 'Pazar'];
   const dayName = dayNames[weekIdx];
 
   return (
@@ -139,7 +139,7 @@ export default function TakviyePage() {
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-sm font-medium text-[var(--text-primary)]">
-              Gunluk Ilerleme
+              Günlük İlerleme
             </span>
             <span className="text-sm font-semibold text-[var(--text-primary)]">
               {takenCount} / {totalCount}
@@ -153,7 +153,7 @@ export default function TakviyePage() {
           />
           {progress === 100 && (
             <p className="text-center text-sm text-accent-green font-medium">
-              Tum takviyeler alindi!
+              Tüm takviyeler alındı!
             </p>
           )}
         </div>
@@ -267,7 +267,7 @@ export default function TakviyePage() {
       {todayInteractions.length > 0 && (
         <div className="space-y-2">
           <h2 className="text-sm font-semibold text-[var(--text-secondary)] uppercase tracking-wider px-1">
-            \u26A0\uFE0F Etkilesim Uyarilari
+            \u26A0\uFE0F Etkileşim Uyarıları
           </h2>
 
           <div className="space-y-2">

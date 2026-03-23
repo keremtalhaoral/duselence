@@ -45,7 +45,7 @@ function generateICSEvents(): EventAttributes[] {
           const [endH, endM] = fitnessSlot.endTime.split(':').map(Number);
           events.push({
             title: `💪 ${workout.shortName}`,
-            description: `${workout.name}\nTip: ${workout.type === 'fct' ? 'FCT Devre' : 'Ağır'}\nSüre: ~${workout.estimatedDuration}dk\nHareketler: ${workout.exercises.map(e => e.name).join(', ')}`,
+            description: `${workout.name}\nTip: ${workout.type === 'fct' ? 'French Contrast' : 'Heavy'}\nSüre: ~${workout.estimatedDuration}dk\nBölümler: ${workout.sections.map(s => s.name).join(', ')}`,
             start: [eventDate.getFullYear(), eventDate.getMonth() + 1, eventDate.getDate(), startH, startM],
             end: [eventDate.getFullYear(), eventDate.getMonth() + 1, eventDate.getDate(), endH, endM],
             categories: ['fitness'],

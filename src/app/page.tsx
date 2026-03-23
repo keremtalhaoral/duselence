@@ -27,11 +27,11 @@ const activityTypeIcons: Record<string, string> = {
 
 const sectionLinks = [
   { href: '/antrenman', label: 'Antrenman', icon: '\u{1F3CB}\uFE0F', color: 'bg-accent-red/15 text-accent-red' },
-  { href: '/takviyeler', label: 'Takviyeler', icon: '\u{1F48A}', color: 'bg-accent-green/15 text-accent-green' },
-  { href: '/program', label: 'Program', icon: '\u{1F4C5}', color: 'bg-accent-blue/15 text-accent-blue' },
+  { href: '/takviye', label: 'Takviyeler', icon: '\u{1F48A}', color: 'bg-accent-green/15 text-accent-green' },
+  { href: '/protokol', label: 'Program', icon: '\u{1F4C5}', color: 'bg-accent-blue/15 text-accent-blue' },
   { href: '/beslenme', label: 'Beslenme', icon: '\u{1F957}', color: 'bg-accent-orange/15 text-accent-orange' },
   { href: '/ilerleme', label: 'İlerleme', icon: '\u{1F4C8}', color: 'bg-accent-purple/15 text-accent-purple' },
-  { href: '/periyodizasyon', label: 'Periyodizasyon', icon: '\u{1F504}', color: 'bg-accent-cyan/15 text-accent-cyan' },
+  { href: '/periodizasyon', label: 'Periyodizasyon', icon: '\u{1F504}', color: 'bg-accent-cyan/15 text-accent-cyan' },
 ];
 
 function getJsDayToDataDay(jsDay: number): number {
@@ -126,14 +126,13 @@ export default function HomePage() {
   const formattedDate = format(now, "d MMMM yyyy, EEEE", { locale: tr });
 
   // Greeting based on time of day
-  const greeting = currentHour < 12 ? 'Gunaydin' : currentHour < 18 ? 'Iyi gunler' : 'Iyi aksamlar';
-  const greetingTr = currentHour < 12 ? 'Gunaydın' : currentHour < 18 ? 'İyi gunler' : 'İyi akşamlar';
+  const greeting = currentHour < 12 ? 'Günaydın' : currentHour < 18 ? 'İyi günler' : 'İyi akşamlar';
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-6 space-y-5">
       {/* Fulsac Critical Warning */}
       {showFulsacWarning && (
-        <Link href="/takviyeler">
+        <Link href="/takviye">
           <Card className="border border-accent-red/40 !bg-accent-red/10 animate-pulse" hover={true} padding="md">
             <div className="flex items-center gap-3">
               <span className="text-2xl">{'\u26A0\uFE0F'}</span>
@@ -143,7 +142,7 @@ export default function HomePage() {
                   <span className="font-bold text-accent-red">Fulsac Alınmadı!</span>
                 </div>
                 <p className="text-sm text-[var(--text-secondary)] mt-1">
-                  Fulsac (Fluoksetin) 40mg bugün henuz alınmadı. Kesinlikle atlanmamalı.
+                  Fulsac (Fluoksetin) 40mg bugün henüz alınmadı. Kesinlikle atlanmamalı.
                 </p>
               </div>
               <span className="text-[var(--text-tertiary)]">{'\u203A'}</span>
@@ -155,7 +154,7 @@ export default function HomePage() {
       {/* Greeting Header */}
       <div>
         <h1 className="text-2xl md:text-3xl font-bold">
-          {currentHour < 12 ? 'Gunaydın' : currentHour < 18 ? 'İyi gunler' : 'İyi akşamlar'},{' '}
+          {greeting},{' '}
           <span className="gradient-text">Kerem</span>
         </h1>
         <p className="text-[var(--text-secondary)] mt-1 text-sm md:text-base">
@@ -216,7 +215,7 @@ export default function HomePage() {
             </div>
           )}
           {!currentActivity && !nextActivity && (
-            <p className="text-sm text-[var(--text-tertiary)]">Bugün icin planlanmış etkinlik yok.</p>
+            <p className="text-sm text-[var(--text-tertiary)]">Bugün için planlanmış etkinlik yok.</p>
           )}
         </div>
       </Card>
@@ -237,7 +236,7 @@ export default function HomePage() {
                       {todayWorkout.type === 'fct' ? 'FCT' : 'HEAVY'}
                     </Badge>
                     <span className="text-xs text-[var(--text-tertiary)]">
-                      {todayWorkout.exercises.length} egzersiz {'\u00B7'} ~{todayWorkout.estimatedDuration} dk
+                      {todayWorkout.sections.reduce((s, sec) => s + sec.exercises.length, 0)} egzersiz {'\u00B7'} ~{todayWorkout.estimatedDuration} dk
                     </span>
                   </div>
                 </div>
@@ -255,7 +254,7 @@ export default function HomePage() {
               {'\u{1F9D8}'}
             </div>
             <div>
-              <h3 className="font-semibold text-[var(--text-primary)]">Dinlenme Gunu</h3>
+              <h3 className="font-semibold text-[var(--text-primary)]">Dinlenme Günü</h3>
               <p className="text-xs text-[var(--text-tertiary)] mt-0.5">
                 Bugün antrenman yok. Toparlanmaya odaklan.
               </p>
@@ -265,7 +264,7 @@ export default function HomePage() {
       )}
 
       {/* Supplement Progress */}
-      <Link href="/takviyeler">
+      <Link href="/takviye">
         <Card padding="md" hover={true}>
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-xs font-semibold uppercase tracking-wider text-[var(--text-tertiary)]">
@@ -283,7 +282,7 @@ export default function HomePage() {
           />
           {supplementProgress === 100 && (
             <p className="text-xs text-accent-green mt-2 font-medium">
-              {'\u2705'} Tum takviyeler alındı!
+              {'\u2705'} Tüm takviyeler alındı!
             </p>
           )}
           {supplementProgress > 0 && supplementProgress < 100 && (
@@ -293,7 +292,7 @@ export default function HomePage() {
           )}
           {supplementProgress === 0 && totalSupplements > 0 && (
             <p className="text-xs text-[var(--text-tertiary)] mt-2">
-              Henuz takviye alınmadı. Takip icin tıkla.
+              Henüz takviye alınmadı. Takip için tıkla.
             </p>
           )}
         </Card>
@@ -333,7 +332,7 @@ export default function HomePage() {
               </div>
               <p className="text-xs text-[var(--text-secondary)] mt-1">{currentPhase.focus}</p>
               <p className="text-xs text-[var(--text-tertiary)] mt-0.5">
-                Faz icinde {weekInPhase}. hafta {'\u00B7'} {currentPhase.intensityRange}
+                Faz içinde {weekInPhase}. hafta {'\u00B7'} {currentPhase.intensityRange}
               </p>
             </div>
           </div>
@@ -343,9 +342,9 @@ export default function HomePage() {
               <span className="text-2xl">{'\u{23F3}'}</span>
             </div>
             <div>
-              <h3 className="font-semibold text-[var(--text-primary)]">Program Henuz Başlamadı</h3>
+              <h3 className="font-semibold text-[var(--text-primary)]">Program Henüz Başlamadı</h3>
               <p className="text-xs text-[var(--text-secondary)] mt-1">
-                Başlangıc tarihi: {format(parse(programStartDate, 'yyyy-MM-dd', new Date()), 'd MMMM yyyy', { locale: tr })}
+                Başlangıç tarihi: {format(parse(programStartDate, 'yyyy-MM-dd', new Date()), 'd MMMM yyyy', { locale: tr })}
               </p>
             </div>
           </div>

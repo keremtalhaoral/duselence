@@ -38,7 +38,7 @@ const typeBadgeVariants: Record<ActivityType, 'red' | 'blue' | 'cyan' | 'green' 
 
 const typeLabels: Record<ActivityType, string> = {
   fitness: 'Fitness',
-  'üniversite': 'Universite',
+  'üniversite': 'Üniversite',
   hokey: 'Hokey',
   toparlanma: 'Toparlanma',
   beslenme: 'Beslenme',
@@ -65,7 +65,7 @@ export function ProtocolContent({ gun }: { gun: string }) {
           &larr; Protokole don
         </Link>
         <Card hover={false} padding="lg">
-          <p className="text-sm text-[var(--text-secondary)]">Bu gun bulunamadi.</p>
+          <p className="text-sm text-[var(--text-secondary)]">Bu gün bulunamadı.</p>
         </Card>
       </div>
     );
@@ -94,7 +94,7 @@ export function ProtocolContent({ gun }: { gun: string }) {
       </div>
 
       <Card hover={false} padding="md">
-        <h2 className="font-semibold text-sm mb-3">Aktivite Dagilimi</h2>
+        <h2 className="font-semibold text-sm mb-3">Aktivite Dağılımı</h2>
         <div className="flex flex-wrap gap-2">
           {typeSummary.map(([type, count]) => (
             <div key={type} className="flex items-center gap-1.5">
@@ -107,7 +107,7 @@ export function ProtocolContent({ gun }: { gun: string }) {
       </Card>
 
       <div className="space-y-1">
-        <h2 className="font-semibold text-sm mb-3">Gunluk Program</h2>
+        <h2 className="font-semibold text-sm mb-3">Günlük Program</h2>
         <div className="relative">
           <div className="absolute left-[39px] top-2 bottom-2 w-px bg-[var(--border-card)]" />
           <div className="space-y-2">

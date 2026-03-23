@@ -26,7 +26,7 @@ const dayBadgeVariants: Record<string, 'red' | 'purple' | 'orange' | 'cyan' | 'g
 
 const activityTypeLabels: Record<ActivityType, string> = {
   fitness: 'Fitness',
-  'üniversite': 'Universite',
+  'üniversite': 'Üniversite',
   hokey: 'Hokey',
   toparlanma: 'Toparlanma',
   beslenme: 'Beslenme',
@@ -50,7 +50,7 @@ function getDaySummary(slots: { type: ActivityType; activity: string }[]): strin
   if (types.has('hokey')) parts.push('Buz Hokeyi');
   if (types.has('toparlanma')) parts.push('Toparlanma');
   if (!types.has('fitness') && !types.has('hokey') && types.has('üniversite')) {
-    parts.push('Universite');
+    parts.push('Üniversite');
   }
 
   return parts.length > 0 ? parts.join(' + ') : 'Dinlenme';
@@ -65,7 +65,7 @@ export default function ProtokolPage() {
       <div>
         <h1 className="text-2xl font-bold gradient-text">Haftalik Protokol</h1>
         <p className="text-sm text-[var(--text-secondary)] mt-1">
-          7 gunluk yasam ve antrenman protokolun
+          7 günlük yaşam ve antrenman protokolün
         </p>
       </div>
 

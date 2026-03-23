@@ -8,11 +8,12 @@ import { ProgressBar } from '@/components/ui/ProgressBar';
 import { phases, getCurrentPhase, getWeekInPhase } from '@/data/periodization';
 import { useProgressStore } from '@/store/useProgressStore';
 
-const phaseColorMap: Record<string, { badge: 'blue' | 'orange' | 'red' | 'green'; bar: string }> = {
+const phaseColorMap: Record<string, { badge: 'blue' | 'orange' | 'red' | 'green' | 'purple'; bar: string }> = {
   adaptasyon: { badge: 'blue', bar: 'bg-accent-blue' },
   guc: { badge: 'orange', bar: 'bg-accent-orange' },
   zirve: { badge: 'red', bar: 'bg-accent-red' },
   deload: { badge: 'green', bar: 'bg-accent-green' },
+  test: { badge: 'purple', bar: 'bg-accent-purple' },
 };
 
 export default function PeriodizasyonPage() {
@@ -82,22 +83,34 @@ export default function PeriodizasyonPage() {
 
               <div className="grid grid-cols-2 gap-2 text-xs">
                 <div className="p-2 rounded-lg bg-[var(--bg-secondary)]">
-                  <span className="text-[var(--text-tertiary)]">Yoğunluk</span>
-                  <p className="font-medium text-[var(--text-primary)]">{phase.intensityRange}</p>
+                  <span className="text-[var(--text-tertiary)]">FCT Yükü</span>
+                  <p className="font-medium text-[var(--text-primary)]">{phase.fctLoad}</p>
+                </div>
+                <div className="p-2 rounded-lg bg-[var(--bg-secondary)]">
+                  <span className="text-[var(--text-tertiary)]">Heavy Yükü</span>
+                  <p className="font-medium text-[var(--text-primary)]">{phase.heavyLoad}</p>
                 </div>
                 <div className="p-2 rounded-lg bg-[var(--bg-secondary)]">
                   <span className="text-[var(--text-tertiary)]">RPE Hedef</span>
                   <p className="font-medium text-[var(--text-primary)]">{phase.rpeTarget}</p>
                 </div>
                 <div className="p-2 rounded-lg bg-[var(--bg-secondary)]">
-                  <span className="text-[var(--text-tertiary)]">Hacim</span>
-                  <p className="font-medium text-[var(--text-primary)]">{phase.volumeChange}</p>
-                </div>
-                <div className="p-2 rounded-lg bg-[var(--bg-secondary)]">
-                  <span className="text-[var(--text-tertiary)]">Progresyon</span>
-                  <p className="font-medium text-[var(--text-primary)]">{phase.progressionRule}</p>
+                  <span className="text-[var(--text-tertiary)]">Aksesuar</span>
+                  <p className="font-medium text-[var(--text-primary)]">{phase.accessoryLoad}</p>
                 </div>
               </div>
+
+              {/* İpuçları */}
+              {phase.tips && phase.tips.length > 0 && (
+                <ul className="mt-3 space-y-1">
+                  {phase.tips.map((tip, i) => (
+                    <li key={i} className="text-[11px] text-[var(--text-secondary)] flex items-start gap-1.5">
+                      <span className="text-[var(--text-tertiary)] shrink-0">&bull;</span>
+                      <span>{tip}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
 
               {phase.deloadInfo && (
                 <div className="mt-3 p-2 rounded-lg bg-accent-green/10 border border-accent-green/20">
