@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
+import { Flame, Dumbbell, Heart, UtensilsCrossed } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { ProgressBar } from '@/components/ui/ProgressBar';
@@ -47,10 +48,10 @@ function MealCard({ meal }: { meal: Meal }) {
       </div>
       <p className="text-xs text-[var(--text-secondary)] leading-relaxed mb-2">{meal.description}</p>
       {meal.macros && (
-        <div className="flex gap-3 text-[10px]">
-          <span className="px-2 py-0.5 rounded-full bg-accent-blue/10 text-accent-blue font-medium">P: {meal.macros.protein}g</span>
-          <span className="px-2 py-0.5 rounded-full bg-accent-orange/10 text-accent-orange font-medium">K: {meal.macros.carbs}g</span>
-          <span className="px-2 py-0.5 rounded-full bg-accent-purple/10 text-accent-purple font-medium">Y: {meal.macros.fat}g</span>
+        <div className="flex gap-2 text-[10px]">
+          <span className="px-2 py-0.5 rounded-lg bg-blue-50 text-blue-700 font-medium">P: {meal.macros.protein}g</span>
+          <span className="px-2 py-0.5 rounded-lg bg-amber-50 text-amber-700 font-medium">K: {meal.macros.carbs}g</span>
+          <span className="px-2 py-0.5 rounded-lg bg-violet-50 text-violet-700 font-medium">Y: {meal.macros.fat}g</span>
         </div>
       )}
     </Card>
@@ -78,27 +79,27 @@ export default function BeslenmePage() {
   }, [filteredMeals]);
 
   return (
-    <div className="p-4 md:p-8 max-w-4xl mx-auto space-y-6">
-      <h1 className="text-2xl font-bold gradient-text">Beslenme Planı</h1>
+    <div className="max-w-2xl mx-auto px-4 py-8 space-y-6">
+      <h1 className="text-2xl md:text-3xl font-bold gradient-text">Beslenme Planı</h1>
 
       {/* Day type toggle */}
       <div className="flex gap-2">
         <button
           onClick={() => setDayType('antrenman')}
-          className={`flex-1 py-2.5 rounded-xl text-sm font-medium transition-colors ${
+          className={`flex-1 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 active:scale-[0.98] ${
             dayType === 'antrenman'
-              ? 'bg-accent-red text-white'
-              : 'bg-[var(--bg-secondary)] text-[var(--text-secondary)]'
+              ? 'bg-primary text-white shadow-[var(--shadow-md)]'
+              : 'bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)]'
           }`}
         >
           Antrenman Günü
         </button>
         <button
           onClick={() => setDayType('toparlanma')}
-          className={`flex-1 py-2.5 rounded-xl text-sm font-medium transition-colors ${
+          className={`flex-1 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 active:scale-[0.98] ${
             dayType === 'toparlanma'
-              ? 'bg-accent-green text-white'
-              : 'bg-[var(--bg-secondary)] text-[var(--text-secondary)]'
+              ? 'bg-emerald-500 text-white shadow-[var(--shadow-md)]'
+              : 'bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)]'
           }`}
         >
           Toparlanma Günü
@@ -107,7 +108,7 @@ export default function BeslenmePage() {
 
       {/* Macro targets */}
       <Card hover={false} padding="md">
-        <h2 className="text-sm font-semibold text-[var(--text-primary)] mb-1">Makro Hedefler</h2>
+        <h2 className="text-[10px] font-semibold uppercase tracking-widest text-[var(--text-tertiary)] mb-1">Makro Hedefler</h2>
         <p className="text-xs text-[var(--text-secondary)] mb-3">{macroTargets.note}</p>
         <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
           <div className="flex justify-between">
@@ -131,37 +132,38 @@ export default function BeslenmePage() {
 
       {/* Daily summary */}
       <Card hover={false} padding="md">
-        <h2 className="text-sm font-semibold text-[var(--text-primary)] mb-3">
-          Günlük Toplam <Badge variant={config.badge} size="sm">{config.label}</Badge>
-        </h2>
+        <div className="flex items-center gap-2 mb-3">
+          <h2 className="text-sm font-semibold text-[var(--text-primary)]">Günlük Toplam</h2>
+          <Badge variant={config.badge} size="sm">{config.label}</Badge>
+        </div>
         <div className="grid grid-cols-4 gap-3 mb-3 text-center">
           <div>
             <p className="text-lg font-bold text-[var(--text-primary)]">{totals.calories}</p>
             <p className="text-[10px] text-[var(--text-tertiary)]">kcal</p>
           </div>
           <div>
-            <p className="text-lg font-bold text-accent-blue">{totals.protein}g</p>
+            <p className="text-lg font-bold text-blue-600">{totals.protein}g</p>
             <p className="text-[10px] text-[var(--text-tertiary)]">protein</p>
           </div>
           <div>
-            <p className="text-lg font-bold text-accent-orange">{totals.carbs}g</p>
+            <p className="text-lg font-bold text-amber-600">{totals.carbs}g</p>
             <p className="text-[10px] text-[var(--text-tertiary)]">karb</p>
           </div>
           <div>
-            <p className="text-lg font-bold text-accent-purple">{totals.fat}g</p>
+            <p className="text-lg font-bold text-violet-600">{totals.fat}g</p>
             <p className="text-[10px] text-[var(--text-tertiary)]">yağ</p>
           </div>
         </div>
         <div className="space-y-2">
-          <MacroBar label="Protein" current={totals.protein} color="bg-accent-blue" />
-          <MacroBar label="Karbonhidrat" current={totals.carbs} color="bg-accent-orange" />
-          <MacroBar label="Yağ" current={totals.fat} color="bg-accent-purple" />
+          <MacroBar label="Protein" current={totals.protein} color="bg-blue-500" />
+          <MacroBar label="Karbonhidrat" current={totals.carbs} color="bg-amber-500" />
+          <MacroBar label="Yağ" current={totals.fat} color="bg-violet-500" />
         </div>
       </Card>
 
       {/* Meals */}
       <div>
-        <h2 className="text-sm font-semibold text-[var(--text-primary)] mb-3">Öğünler</h2>
+        <h2 className="text-[10px] font-semibold uppercase tracking-widest text-[var(--text-tertiary)] mb-3 px-1">Öğünler</h2>
         <div className="space-y-3">
           {filteredMeals
             .sort((a, b) => a.time.localeCompare(b.time))
@@ -173,12 +175,12 @@ export default function BeslenmePage() {
 
       {/* Shake Recipes */}
       <div>
-        <h2 className="text-sm font-semibold text-[var(--text-primary)] mb-3">Shake Tarifleri</h2>
+        <h2 className="text-[10px] font-semibold uppercase tracking-widest text-[var(--text-tertiary)] mb-3 px-1">Shake Tarifleri</h2>
         <div className="space-y-2">
           {shakeRecipes.map(shake => (
-            <Accordion key={shake.id} title={`${shake.icon} ${shake.name}`} defaultOpen={false}>
+            <Accordion key={shake.id} title={`${shake.name}`} defaultOpen={false}>
               <div className="space-y-2">
-                <p className="text-xs text-accent-blue font-medium">{shake.timing}</p>
+                <p className="text-xs text-blue-600 font-medium">{shake.timing}</p>
                 <ul className="space-y-1">
                   {shake.ingredients.map((ing, i) => (
                     <li key={i} className="text-xs text-[var(--text-secondary)] flex items-center gap-2">
@@ -187,11 +189,11 @@ export default function BeslenmePage() {
                     </li>
                   ))}
                 </ul>
-                <div className="flex gap-3 text-[10px] mt-2">
-                  <span className="px-2 py-0.5 rounded-full bg-accent-blue/10 text-accent-blue font-medium">P: {shake.macros.protein}g</span>
-                  <span className="px-2 py-0.5 rounded-full bg-accent-orange/10 text-accent-orange font-medium">K: {shake.macros.carbs}g</span>
-                  <span className="px-2 py-0.5 rounded-full bg-accent-purple/10 text-accent-purple font-medium">Y: {shake.macros.fat}g</span>
-                  <span className="px-2 py-0.5 rounded-full bg-[var(--bg-secondary)] text-[var(--text-primary)] font-medium">{shake.macros.calories} kcal</span>
+                <div className="flex gap-2 text-[10px] mt-2">
+                  <span className="px-2 py-0.5 rounded-lg bg-blue-50 text-blue-700 font-medium">P: {shake.macros.protein}g</span>
+                  <span className="px-2 py-0.5 rounded-lg bg-amber-50 text-amber-700 font-medium">K: {shake.macros.carbs}g</span>
+                  <span className="px-2 py-0.5 rounded-lg bg-violet-50 text-violet-700 font-medium">Y: {shake.macros.fat}g</span>
+                  <span className="px-2 py-0.5 rounded-lg bg-gray-50 text-[var(--text-primary)] font-medium">{shake.macros.calories} kcal</span>
                 </div>
               </div>
             </Accordion>

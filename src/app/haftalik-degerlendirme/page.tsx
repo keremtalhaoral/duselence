@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import { format, differenceInWeeks } from 'date-fns';
+import { CheckCircle, RotateCcw } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { useProgressStore, type WeeklyReview } from '@/store/useProgressStore';
@@ -13,6 +14,14 @@ import {
 const muscleGroups = ['Göğüs', 'Sırt', 'Omuz', 'Biceps', 'Triceps', 'Quadriceps', 'Hamstring', 'Kalça', 'Core'];
 const joints = ['Omuz eklemi', 'Dirsek', 'Bilek', 'Bel', 'Diz', 'Ayak bileği'];
 
+const tooltipStyle = {
+  backgroundColor: '#fff',
+  border: 'none',
+  borderRadius: '12px',
+  fontSize: '12px',
+  boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+};
+
 function RatingSelector({ value, onChange, label }: { value: number; onChange: (v: number) => void; label: string }) {
   return (
     <div className="flex items-center justify-between py-1.5">
@@ -23,13 +32,13 @@ function RatingSelector({ value, onChange, label }: { value: number; onChange: (
             key={n}
             type="button"
             onClick={() => onChange(n)}
-            className={`w-8 h-8 rounded-lg text-xs font-medium transition-all ${
+            className={`w-8 h-8 rounded-lg text-xs font-medium transition-all duration-200 hover:scale-110 active:scale-90 ${
               n <= value
                 ? n <= 2
-                  ? 'bg-accent-green text-white'
+                  ? 'bg-emerald-500 text-white'
                   : n <= 3
-                  ? 'bg-accent-orange text-white'
-                  : 'bg-accent-red text-white'
+                  ? 'bg-amber-500 text-white'
+                  : 'bg-primary text-white'
                 : 'bg-[var(--bg-secondary)] text-[var(--text-tertiary)]'
             }`}
           >
@@ -83,17 +92,14 @@ function ReviewAnalytics({ reviews }: { reviews: WeeklyReview[] }) {
         <div className="h-[220px]">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={trendData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="var(--border-card)" />
-              <XAxis dataKey="week" tick={{ fontSize: 10, fill: 'var(--text-tertiary)' }} />
-              <YAxis domain={[0, 5]} tick={{ fontSize: 10, fill: 'var(--text-tertiary)' }} />
-              <Tooltip
-                contentStyle={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-card)', borderRadius: '12px', fontSize: '12px' }}
-                labelStyle={{ color: 'var(--text-primary)' }}
-              />
+              <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+              <XAxis dataKey="week" tick={{ fontSize: 10, fill: '#94A3B8' }} />
+              <YAxis domain={[0, 5]} tick={{ fontSize: 10, fill: '#94A3B8' }} />
+              <Tooltip contentStyle={tooltipStyle} labelStyle={{ color: '#0F172A' }} />
               <Legend wrapperStyle={{ fontSize: '11px' }} />
-              <Line type="monotone" dataKey="uyku" name="Uyku" stroke="#3b82f6" strokeWidth={2} dot={{ r: 3 }} />
-              <Line type="monotone" dataKey="stres" name="Stres" stroke="#ef4444" strokeWidth={2} dot={{ r: 3 }} />
-              <Line type="monotone" dataKey="kasZihin" name="Kas-Zihin" stroke="#22c55e" strokeWidth={2} dot={{ r: 3 }} />
+              <Line type="monotone" dataKey="uyku" name="Uyku" stroke="#2563eb" strokeWidth={2} dot={{ r: 3 }} />
+              <Line type="monotone" dataKey="stres" name="Stres" stroke="#b52b32" strokeWidth={2} dot={{ r: 3 }} />
+              <Line type="monotone" dataKey="kasZihin" name="Kas-Zihin" stroke="#16a34a" strokeWidth={2} dot={{ r: 3 }} />
             </LineChart>
           </ResponsiveContainer>
         </div>
@@ -106,10 +112,10 @@ function ReviewAnalytics({ reviews }: { reviews: WeeklyReview[] }) {
           <div className="h-[280px]">
             <ResponsiveContainer width="100%" height="100%">
               <RadarChart cx="50%" cy="50%" outerRadius="70%" data={radarData}>
-                <PolarGrid stroke="var(--border-card)" />
-                <PolarAngleAxis dataKey="kas" tick={{ fontSize: 9, fill: 'var(--text-secondary)' }} />
-                <PolarRadiusAxis domain={[0, 5]} tick={{ fontSize: 8, fill: 'var(--text-tertiary)' }} />
-                <Radar name="Yorgunluk" dataKey="yorgunluk" stroke="#ef4444" fill="#ef4444" fillOpacity={0.25} strokeWidth={2} />
+                <PolarGrid stroke="#E5E7EB" />
+                <PolarAngleAxis dataKey="kas" tick={{ fontSize: 9, fill: '#475569' }} />
+                <PolarRadiusAxis domain={[0, 5]} tick={{ fontSize: 8, fill: '#94A3B8' }} />
+                <Radar name="Yorgunluk" dataKey="yorgunluk" stroke="#b52b32" fill="#b52b32" fillOpacity={0.2} strokeWidth={2} />
               </RadarChart>
             </ResponsiveContainer>
           </div>
@@ -123,20 +129,17 @@ function ReviewAnalytics({ reviews }: { reviews: WeeklyReview[] }) {
           <div className="h-[220px]">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={jointTrendData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="var(--border-card)" />
-                <XAxis dataKey="week" tick={{ fontSize: 10, fill: 'var(--text-tertiary)' }} />
-                <YAxis domain={[0, 5]} tick={{ fontSize: 10, fill: 'var(--text-tertiary)' }} />
-                <Tooltip
-                  contentStyle={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-card)', borderRadius: '12px', fontSize: '12px' }}
-                  labelStyle={{ color: 'var(--text-primary)' }}
-                />
+                <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                <XAxis dataKey="week" tick={{ fontSize: 10, fill: '#94A3B8' }} />
+                <YAxis domain={[0, 5]} tick={{ fontSize: 10, fill: '#94A3B8' }} />
+                <Tooltip contentStyle={tooltipStyle} labelStyle={{ color: '#0F172A' }} />
                 <Legend wrapperStyle={{ fontSize: '10px' }} />
-                <Line type="monotone" dataKey="Omuz eklemi" name="Omuz" stroke="#ef4444" strokeWidth={1.5} dot={{ r: 2 }} />
-                <Line type="monotone" dataKey="Dirsek" name="Dirsek" stroke="#f97316" strokeWidth={1.5} dot={{ r: 2 }} />
-                <Line type="monotone" dataKey="Bilek" name="Bilek" stroke="#eab308" strokeWidth={1.5} dot={{ r: 2 }} />
-                <Line type="monotone" dataKey="Bel" name="Bel" stroke="#a855f7" strokeWidth={1.5} dot={{ r: 2 }} />
-                <Line type="monotone" dataKey="Diz" name="Diz" stroke="#3b82f6" strokeWidth={1.5} dot={{ r: 2 }} />
-                <Line type="monotone" dataKey="Ayak bileği" name="Ayak bileği" stroke="#06b6d4" strokeWidth={1.5} dot={{ r: 2 }} />
+                <Line type="monotone" dataKey="Omuz eklemi" name="Omuz" stroke="#b52b32" strokeWidth={1.5} dot={{ r: 2 }} />
+                <Line type="monotone" dataKey="Dirsek" name="Dirsek" stroke="#d97706" strokeWidth={1.5} dot={{ r: 2 }} />
+                <Line type="monotone" dataKey="Bilek" name="Bilek" stroke="#ca8a04" strokeWidth={1.5} dot={{ r: 2 }} />
+                <Line type="monotone" dataKey="Bel" name="Bel" stroke="#7c3aed" strokeWidth={1.5} dot={{ r: 2 }} />
+                <Line type="monotone" dataKey="Diz" name="Diz" stroke="#2563eb" strokeWidth={1.5} dot={{ r: 2 }} />
+                <Line type="monotone" dataKey="Ayak bileği" name="Ayak bileği" stroke="#0891b2" strokeWidth={1.5} dot={{ r: 2 }} />
               </LineChart>
             </ResponsiveContainer>
           </div>
@@ -179,16 +182,17 @@ export default function HaftalikDegerlendirmePage() {
 
   if (submitted) {
     return (
-      <div className="p-4 md:p-8 max-w-4xl mx-auto space-y-6">
+      <div className="max-w-2xl mx-auto px-4 py-8 space-y-6">
         <Card hover={false} padding="lg">
           <div className="text-center py-8">
-            <p className="text-4xl mb-4">OK</p>
+            <CheckCircle size={48} className="text-emerald-500 mx-auto mb-4" />
             <h2 className="text-lg font-bold text-[var(--text-primary)] mb-2">Değerlendirme Kaydedildi</h2>
             <p className="text-sm text-[var(--text-secondary)]">Hafta {currentWeek} değerlendirmen kaydedildi.</p>
             <button
               onClick={() => setSubmitted(false)}
-              className="mt-4 px-4 py-2 rounded-xl bg-accent-blue text-white text-sm font-medium hover:bg-accent-blue/90 transition-colors"
+              className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary text-white text-sm font-medium hover:bg-primary-dark transition-colors duration-200 active:scale-[0.98]"
             >
+              <RotateCcw size={14} />
               Geri Dön
             </button>
           </div>
@@ -199,9 +203,9 @@ export default function HaftalikDegerlendirmePage() {
   }
 
   return (
-    <div className="p-4 md:p-8 max-w-4xl mx-auto space-y-6">
+    <div className="max-w-2xl mx-auto px-4 py-8 space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold gradient-text">Haftalık Değerlendirme</h1>
+        <h1 className="text-2xl md:text-3xl font-bold gradient-text">Haftalık Değerlendirme</h1>
         <Badge variant="blue" size="md">Hafta {currentWeek}</Badge>
       </div>
 
@@ -256,14 +260,14 @@ export default function HaftalikDegerlendirmePage() {
           <textarea
             value={notes}
             onChange={e => setNotes(e.target.value)}
-            className="w-full px-3 py-2 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-card)] text-sm text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-accent-blue/50 min-h-[80px] resize-none"
+            className="w-full px-3 py-2 rounded-xl bg-[var(--bg-secondary)] text-sm text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-primary/30 min-h-[80px] resize-none transition-shadow"
             placeholder="Bu haftanın genel değerlendirmesi, ağrılar, değişiklikler..."
           />
         </Card>
 
         <button
           type="submit"
-          className="w-full py-3 rounded-xl bg-accent-blue text-white font-semibold text-sm hover:bg-accent-blue/90 transition-colors"
+          className="w-full py-3 rounded-xl bg-primary text-white font-semibold text-sm hover:bg-primary-dark transition-colors duration-200 active:scale-[0.98]"
         >
           Değerlendirmeyi Kaydet
         </button>
@@ -278,7 +282,7 @@ export default function HaftalikDegerlendirmePage() {
           <h2 className="text-sm font-semibold text-[var(--text-primary)] mb-3">Önceki Değerlendirmeler</h2>
           <div className="space-y-2">
             {weeklyReviews.slice().reverse().map((r, i) => (
-              <div key={i} className="flex items-center justify-between py-2 border-b border-[var(--border-card)] last:border-0">
+              <div key={i} className="flex items-center justify-between py-2">
                 <span className="text-xs text-[var(--text-tertiary)]">Hafta {r.weekNumber} — {r.date}</span>
                 <div className="flex gap-1">
                   <Badge variant={r.sleep <= 2 ? 'green' : r.sleep <= 3 ? 'orange' : 'red'}>

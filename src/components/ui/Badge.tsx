@@ -1,17 +1,18 @@
 interface BadgeProps {
   children: React.ReactNode;
-  variant?: 'default' | 'blue' | 'green' | 'red' | 'purple' | 'orange' | 'cyan' | 'critical';
+  variant?: 'default' | 'blue' | 'green' | 'red' | 'purple' | 'orange' | 'cyan' | 'critical' | 'primary';
   size?: 'sm' | 'md';
 }
 
 const variants: Record<string, string> = {
-  default: 'bg-[var(--bg-secondary)] text-[var(--text-secondary)]',
-  blue: 'bg-accent-blue/15 text-accent-blue',
-  green: 'bg-accent-green/15 text-accent-green',
-  red: 'bg-accent-red/15 text-accent-red',
-  purple: 'bg-accent-purple/15 text-accent-purple',
-  orange: 'bg-accent-orange/15 text-accent-orange',
-  cyan: 'bg-accent-cyan/15 text-accent-cyan',
+  default: 'bg-gray-100 text-[var(--text-secondary)]',
+  blue: 'bg-blue-50 text-blue-700',
+  green: 'bg-emerald-50 text-emerald-700',
+  red: 'bg-red-50 text-red-700',
+  purple: 'bg-violet-50 text-violet-700',
+  orange: 'bg-amber-50 text-amber-700',
+  cyan: 'bg-cyan-50 text-cyan-700',
+  primary: 'bg-primary-light text-primary-dark',
   critical: 'critical-badge',
 };
 

@@ -4,14 +4,13 @@ import { useState, useRef } from 'react';
 import Link from 'next/link';
 import { format } from 'date-fns';
 import { tr } from 'date-fns/locale';
+import { Settings, Calendar, Database, User, Pill, Stethoscope, Download, Upload, Save, ChevronRight } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
-import { useThemeStore } from '@/store/useThemeStore';
 import { useProgressStore } from '@/store/useProgressStore';
 import { userProfile } from '@/data/user';
 
 export default function AyarlarPage() {
-  const { isDark, toggle } = useThemeStore();
   const { programStartDate, setProgramStartDate, exportData, importData } = useProgressStore();
   const [startDate, setStartDate] = useState(programStartDate);
   const [importStatus, setImportStatus] = useState<'idle' | 'success' | 'error'>('idle');
@@ -52,39 +51,30 @@ export default function AyarlarPage() {
   const daysUntilAppointment = Math.ceil((appointmentDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
 
   return (
-    <div className="p-4 md:p-8 max-w-4xl mx-auto space-y-6">
-      <h1 className="text-2xl font-bold gradient-text">Ayarlar</h1>
-
-      {/* Theme */}
-      <Card hover={false} padding="md">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-sm font-semibold text-[var(--text-primary)]">Tema</h2>
-            <p className="text-xs text-[var(--text-tertiary)]">{isDark ? 'Koyu mod aktif' : 'Açık mod aktif'}</p>
-          </div>
-          <button
-            onClick={toggle}
-            className="px-4 py-2 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-card)] text-sm font-medium text-[var(--text-primary)] hover:bg-[var(--bg-card-hover)] transition-colors"
-          >
-            {isDark ? 'Açık Mod' : 'Koyu Mod'}
-          </button>
-        </div>
-      </Card>
+    <div className="max-w-2xl mx-auto px-4 py-8 space-y-6">
+      <div className="flex items-center gap-2">
+        <Settings size={22} className="text-[var(--text-tertiary)]" />
+        <h1 className="text-2xl md:text-3xl font-bold gradient-text">Ayarlar</h1>
+      </div>
 
       {/* Program Start Date */}
       <Card hover={false} padding="md">
-        <h2 className="text-sm font-semibold text-[var(--text-primary)] mb-3">Program Başlangıç Tarihi</h2>
+        <div className="flex items-center gap-2 mb-3">
+          <Calendar size={16} className="text-blue-500" />
+          <h2 className="text-sm font-semibold text-[var(--text-primary)]">Program Başlangıç Tarihi</h2>
+        </div>
         <div className="flex items-center gap-3">
           <input
             type="date"
             value={startDate}
             onChange={e => setStartDate(e.target.value)}
-            className="flex-1 px-3 py-2 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-card)] text-sm text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-accent-blue/50"
+            className="flex-1 px-3 py-2 rounded-xl bg-[var(--bg-secondary)] text-sm text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-primary/30 transition-shadow"
           />
           <button
             onClick={handleSaveDate}
-            className="px-4 py-2 rounded-xl bg-accent-blue text-white text-sm font-medium hover:bg-accent-blue/90 transition-colors"
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary text-white text-sm font-medium hover:bg-primary-dark transition-colors duration-200 active:scale-[0.98]"
           >
+            <Save size={14} />
             Kaydet
           </button>
         </div>
@@ -93,16 +83,20 @@ export default function AyarlarPage() {
 
       {/* Data Export/Import */}
       <Card hover={false} padding="md">
-        <h2 className="text-sm font-semibold text-[var(--text-primary)] mb-3">Veri Yönetimi</h2>
+        <div className="flex items-center gap-2 mb-3">
+          <Database size={16} className="text-violet-500" />
+          <h2 className="text-sm font-semibold text-[var(--text-primary)]">Veri Yönetimi</h2>
+        </div>
         <p className="text-xs text-[var(--text-secondary)] mb-3">
           Tüm ilerleme, antrenman ve haftalık değerlendirme verilerini dışa/içe aktar.
         </p>
         <div className="flex gap-3">
           <button
             onClick={handleExport}
-            className="flex-1 py-2.5 rounded-xl bg-accent-blue text-white text-sm font-medium hover:bg-accent-blue/90 transition-colors"
+            className="flex-1 inline-flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-primary text-white text-sm font-medium hover:bg-primary-dark transition-colors duration-200 active:scale-[0.98]"
           >
-            Dışa Aktar (JSON)
+            <Download size={14} />
+            Dışa Aktar
           </button>
           <label className="flex-1">
             <input
@@ -112,22 +106,26 @@ export default function AyarlarPage() {
               onChange={handleImport}
               className="hidden"
             />
-            <div className="py-2.5 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-card)] text-sm font-medium text-[var(--text-primary)] text-center cursor-pointer hover:bg-[var(--bg-card-hover)] transition-colors">
-              İçe Aktar (JSON)
+            <div className="inline-flex items-center justify-center gap-1.5 w-full py-2.5 rounded-xl bg-[var(--bg-secondary)] text-sm font-medium text-[var(--text-primary)] text-center cursor-pointer hover:bg-[var(--bg-tertiary)] transition-colors duration-200 active:scale-[0.98]">
+              <Upload size={14} />
+              İçe Aktar
             </div>
           </label>
         </div>
         {importStatus === 'success' && (
-          <p className="text-xs text-accent-green mt-2 font-medium">Veriler başarıyla içe aktarıldı.</p>
+          <p className="text-xs text-emerald-600 mt-2 font-medium">Veriler başarıyla içe aktarıldı.</p>
         )}
         {importStatus === 'error' && (
-          <p className="text-xs text-accent-red mt-2 font-medium">Geçersiz dosya formatı.</p>
+          <p className="text-xs text-primary mt-2 font-medium">Geçersiz dosya formatı.</p>
         )}
       </Card>
 
       {/* User Profile */}
       <Card hover={false} padding="md">
-        <h2 className="text-sm font-semibold text-[var(--text-primary)] mb-3">Profil</h2>
+        <div className="flex items-center gap-2 mb-3">
+          <User size={16} className="text-emerald-500" />
+          <h2 className="text-sm font-semibold text-[var(--text-primary)]">Profil</h2>
+        </div>
         <div className="space-y-2 text-sm">
           <div className="flex justify-between">
             <span className="text-[var(--text-tertiary)]">Ad</span>
@@ -153,7 +151,7 @@ export default function AyarlarPage() {
           </div>
           <div className="flex justify-between">
             <span className="text-[var(--text-tertiary)]">Hedef</span>
-            <span className="text-[var(--text-primary)]">{userProfile.currentWeight}kg - {userProfile.targetWeight}kg, %{userProfile.currentBodyFat} - %{userProfile.targetBodyFat}</span>
+            <span className="text-[var(--text-primary)]">{userProfile.currentWeight}kg → {userProfile.targetWeight}kg, %{userProfile.currentBodyFat} → %{userProfile.targetBodyFat}</span>
           </div>
         </div>
       </Card>
@@ -161,6 +159,7 @@ export default function AyarlarPage() {
       {/* Medication */}
       <Card hover={false} padding="md">
         <div className="flex items-center gap-2 mb-3">
+          <Pill size={16} className="text-primary" />
           <h2 className="text-sm font-semibold text-[var(--text-primary)]">İlaç Bilgisi</h2>
           <Badge variant="critical">Kritik</Badge>
         </div>
@@ -183,6 +182,7 @@ export default function AyarlarPage() {
       {/* Psychiatrist Appointment */}
       <Card hover={false} padding="md">
         <div className="flex items-center gap-2 mb-3">
+          <Stethoscope size={16} className="text-amber-500" />
           <h2 className="text-sm font-semibold text-[var(--text-primary)]">Psikiyatrist Randevusu</h2>
           {daysUntilAppointment > 0 && (
             <Badge variant="orange">{daysUntilAppointment} gün kaldı</Badge>
@@ -205,7 +205,7 @@ export default function AyarlarPage() {
           </div>
           <div className="flex justify-between">
             <span className="text-[var(--text-tertiary)]">Ücret</span>
-            <span className="text-accent-green font-medium">{userProfile.psychiatristAppointment.cost}</span>
+            <span className="text-emerald-600 font-medium">{userProfile.psychiatristAppointment.cost}</span>
           </div>
         </div>
         <div className="mt-3 p-3 rounded-xl bg-[var(--bg-secondary)]">
@@ -213,7 +213,7 @@ export default function AyarlarPage() {
           <ul className="space-y-1">
             {userProfile.psychiatristAppointment.bringList.map((item, i) => (
               <li key={i} className="text-xs text-[var(--text-secondary)] flex gap-1.5">
-                <span className="text-accent-blue">*</span> {item}
+                <span className="text-primary shrink-0">&bull;</span> {item}
               </li>
             ))}
           </ul>
@@ -223,15 +223,15 @@ export default function AyarlarPage() {
       {/* Quick links */}
       <div className="grid grid-cols-2 gap-3">
         <Link href="/periodizasyon">
-          <Card padding="md">
-            <p className="text-sm font-medium text-[var(--text-primary)]">Periodizasyon</p>
-            <p className="text-xs text-[var(--text-tertiary)]">12 haftalık plan</p>
+          <Card padding="md" hover={true}>
+            <p className="text-sm font-medium text-[var(--text-primary)]">Periyodizasyon</p>
+            <p className="text-xs text-[var(--text-tertiary)] mt-0.5">12 haftalık plan</p>
           </Card>
         </Link>
         <Link href="/haftalik-degerlendirme">
-          <Card padding="md">
+          <Card padding="md" hover={true}>
             <p className="text-sm font-medium text-[var(--text-primary)]">Haftalık Değerlendirme</p>
-            <p className="text-xs text-[var(--text-tertiary)]">Yorgunluk ve ağrı</p>
+            <p className="text-xs text-[var(--text-tertiary)] mt-0.5">Yorgunluk ve ağrı</p>
           </Card>
         </Link>
       </div>

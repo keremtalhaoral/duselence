@@ -2,10 +2,11 @@
 
 import { useMemo, useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
+import { ArrowLeft, Play, Square, RotateCcw, Timer, Dumbbell, Zap, ChevronDown } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Accordion } from '@/components/ui/Accordion';
-import { workoutDays, type Exercise, type WorkoutSection, type WorkoutDay } from '@/data/workouts';
+import { workoutDays, type Exercise, type WorkoutSection } from '@/data/workouts';
 
 const labelColors: Record<string, 'purple' | 'blue' | 'cyan' | 'green' | 'orange' | 'red' | 'default'> = {
   A: 'purple',
@@ -21,7 +22,7 @@ const labelColors: Record<string, 'purple' | 'blue' | 'cyan' | 'green' | 'orange
 };
 
 // ─── Rest Timer ───
-function RestTimer({ seconds, onComplete }: { seconds: number; onComplete?: () => void }) {
+function RestTimer({ seconds, label }: { seconds: number; label: string; onComplete?: () => void }) {
   const [remaining, setRemaining] = useState(seconds);
   const [running, setRunning] = useState(false);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -42,47 +43,47 @@ function RestTimer({ seconds, onComplete }: { seconds: number; onComplete?: () =
       setRemaining(prev => {
         if (prev <= 1) {
           stop();
-          onComplete?.();
           return 0;
         }
         return prev - 1;
       });
     }, 1000);
     return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
-  }, [running, stop, onComplete]);
+  }, [running, stop]);
 
   const min = Math.floor(remaining / 60);
   const sec = remaining % 60;
   const progress = seconds > 0 ? ((seconds - remaining) / seconds) * 100 : 0;
 
   return (
-    <div className="flex items-center gap-2">
-      <button
-        type="button"
-        onClick={running ? stop : start}
-        className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-          running
-            ? 'bg-accent-red text-white'
-            : remaining === 0
-            ? 'bg-accent-green text-white'
-            : 'bg-[var(--bg-secondary)] text-[var(--text-secondary)] border border-[var(--border-card)]'
-        }`}
-      >
-        {running ? 'Durdur' : remaining === 0 ? 'Tekrar' : 'Dinlenme'}
-      </button>
-      {(running || remaining < seconds) && (
-        <div className="flex items-center gap-2 flex-1">
-          <div className="flex-1 bg-[var(--bg-secondary)] rounded-full h-1.5">
+    <div className="p-3 rounded-xl bg-[var(--bg-secondary)]">
+      <p className="text-[10px] text-[var(--text-tertiary)] mb-2 font-medium">{label}</p>
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          onClick={running ? stop : start}
+          className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-200 hover:scale-105 active:scale-95 ${
+            running
+              ? 'bg-primary text-white'
+              : remaining === 0
+              ? 'bg-emerald-500 text-white'
+              : 'bg-white text-[var(--text-secondary)] shadow-[var(--shadow-sm)]'
+          }`}
+        >
+          {running ? <Square size={12} /> : remaining === 0 ? <RotateCcw size={12} /> : <Play size={12} />}
+        </button>
+        <div className="flex-1">
+          <div className="w-full bg-gray-100 rounded-full h-1.5">
             <div
-              className={`h-1.5 rounded-full transition-all duration-1000 ${remaining === 0 ? 'bg-accent-green' : 'bg-accent-blue'}`}
+              className={`h-1.5 rounded-full transition-all duration-1000 ${remaining === 0 ? 'bg-emerald-500' : 'bg-primary'}`}
               style={{ width: `${progress}%` }}
             />
           </div>
-          <span className={`text-xs font-mono font-bold ${remaining <= 10 && running ? 'text-accent-red' : 'text-[var(--text-primary)]'}`}>
-            {min}:{sec.toString().padStart(2, '0')}
-          </span>
         </div>
-      )}
+        <span className={`text-sm font-mono font-bold min-w-[40px] text-right ${remaining <= 10 && running ? 'text-primary' : 'text-[var(--text-primary)]'}`}>
+          {min}:{sec.toString().padStart(2, '0')}
+        </span>
+      </div>
     </div>
   );
 }
@@ -90,7 +91,7 @@ function RestTimer({ seconds, onComplete }: { seconds: number; onComplete?: () =
 function ExerciseRow({ exercise }: { exercise: Exercise }) {
   const color = exercise.label ? (labelColors[exercise.label] || 'default') : 'default';
   return (
-    <div className={`flex items-start gap-3 p-3 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-card)] ${exercise.isNew ? 'ring-1 ring-accent-cyan/40' : ''}`}>
+    <div className={`flex items-start gap-3 p-3 rounded-xl bg-[var(--bg-secondary)] ${exercise.isNew ? 'ring-1 ring-cyan-300' : ''}`}>
       {exercise.label && (
         <div className="shrink-0 mt-0.5">
           <Badge variant={color} size="md">{exercise.label}</Badge>
@@ -98,7 +99,7 @@ function ExerciseRow({ exercise }: { exercise: Exercise }) {
       )}
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 flex-wrap">
-          <h4 className={`text-sm font-semibold ${exercise.isNew ? 'text-accent-cyan' : 'text-[var(--text-primary)]'}`}>
+          <h4 className={`text-sm font-semibold ${exercise.isNew ? 'text-cyan-600' : 'text-[var(--text-primary)]'}`}>
             {exercise.name}
           </h4>
           {exercise.isNew && <Badge variant="cyan" size="sm">YENİ</Badge>}
@@ -125,8 +126,10 @@ function SectionView({ section }: { section: WorkoutSection }) {
 
   return (
     <div className="space-y-2">
-      <div className={`p-3 rounded-xl border ${isContrast ? 'border-accent-purple/30 bg-accent-purple/5' : isSuperset ? 'border-accent-orange/30 bg-accent-orange/5' : 'border-[var(--border-card)]'}`}>
-        <h3 className={`text-sm font-bold ${isContrast ? 'text-accent-purple' : isSuperset ? 'text-accent-orange' : 'gradient-text'}`}>
+      <Card hover={false} padding="sm" className={
+        isContrast ? 'bg-violet-50/50' : isSuperset ? 'bg-amber-50/50' : ''
+      }>
+        <h3 className={`text-sm font-bold ${isContrast ? 'text-violet-700' : isSuperset ? 'text-amber-700' : 'gradient-text'}`}>
           {section.name}
         </h3>
         {section.protocol && (
@@ -135,7 +138,7 @@ function SectionView({ section }: { section: WorkoutSection }) {
         {section.description && (
           <p className="text-xs text-[var(--text-tertiary)] mt-1">{section.description}</p>
         )}
-      </div>
+      </Card>
 
       {/* Contrast set flow visualization */}
       {isContrast && (
@@ -183,9 +186,10 @@ export function WorkoutContent({ gun }: { gun: string }) {
 
   if (!workout) {
     return (
-      <div className="px-4 py-6 md:px-8 max-w-3xl mx-auto">
+      <div className="max-w-2xl mx-auto px-4 py-8">
         <p className="text-[var(--text-secondary)]">Antrenman bulunamadı.</p>
-        <Link href="/antrenman" className="inline-block mt-4 text-sm font-medium text-accent-blue hover:underline">
+        <Link href="/antrenman" className="inline-flex items-center gap-1.5 mt-4 text-sm font-medium text-primary hover:underline">
+          <ArrowLeft size={14} />
           Geri Dön
         </Link>
       </div>
@@ -196,9 +200,9 @@ export function WorkoutContent({ gun }: { gun: string }) {
   const totalExercises = workout.sections.reduce((sum, s) => sum + s.exercises.length, 0);
 
   return (
-    <div className="px-4 py-6 md:px-8 max-w-3xl mx-auto space-y-5">
+    <div className="max-w-2xl mx-auto px-4 py-8 space-y-5">
       <Link href="/antrenman" className="inline-flex items-center gap-1.5 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">
-        <span>&larr;</span>
+        <ArrowLeft size={14} />
         <span>Antrenman Programı</span>
       </Link>
 
@@ -211,7 +215,7 @@ export function WorkoutContent({ gun }: { gun: string }) {
             {isFCT ? 'French Contrast' : 'Heavy'}
           </Badge>
           <span className="text-xs text-[var(--text-tertiary)]">
-            ~{workout.estimatedDuration} dk &middot; {totalExercises} hareket
+            ~{workout.estimatedDuration} dk · {totalExercises} hareket
           </span>
         </div>
         <p className="text-xs text-[var(--text-secondary)] mt-2 leading-relaxed">{workout.subtitle}</p>
@@ -223,7 +227,7 @@ export function WorkoutContent({ gun }: { gun: string }) {
       </div>
 
       {/* Isınma */}
-      <Accordion title="Isınma (8-12 dk)" icon="*" defaultOpen>
+      <Accordion title="Isınma (8-12 dk)" defaultOpen>
         <ul className="space-y-1">
           {workout.warmup.map((item, i) => (
             <li key={i} className="text-xs text-[var(--text-secondary)] flex items-start gap-2">
@@ -240,7 +244,7 @@ export function WorkoutContent({ gun }: { gun: string }) {
       ))}
 
       {/* Soğuma */}
-      <Accordion title="Soğuma (8-10 dk)" icon="*">
+      <Accordion title="Soğuma (8-10 dk)">
         <ul className="space-y-1">
           {workout.cooldown.map((item, i) => (
             <li key={i} className="text-xs text-[var(--text-secondary)] flex items-start gap-2">
@@ -253,33 +257,24 @@ export function WorkoutContent({ gun }: { gun: string }) {
 
       {/* Dinlenme Timer */}
       <Card hover={false} padding="md">
-        <h3 className="text-xs font-semibold uppercase tracking-wider text-[var(--text-tertiary)] mb-3">
-          Dinlenme Zamanlayıcı
-        </h3>
+        <div className="flex items-center gap-2 mb-3">
+          <Timer size={16} className="text-[var(--text-tertiary)]" />
+          <h3 className="text-xs font-semibold uppercase tracking-wider text-[var(--text-tertiary)]">
+            Dinlenme Zamanlayıcı
+          </h3>
+        </div>
         <div className="grid grid-cols-2 gap-2">
-          <div>
-            <p className="text-[10px] text-[var(--text-tertiary)] mb-1">FCT Arası (15sn)</p>
-            <RestTimer seconds={15} />
-          </div>
-          <div>
-            <p className="text-[10px] text-[var(--text-tertiary)] mb-1">Tur Arası (3dk)</p>
-            <RestTimer seconds={180} />
-          </div>
-          <div>
-            <p className="text-[10px] text-[var(--text-tertiary)] mb-1">Set Arası (90sn)</p>
-            <RestTimer seconds={90} />
-          </div>
-          <div>
-            <p className="text-[10px] text-[var(--text-tertiary)] mb-1">Ağır Set (2.5dk)</p>
-            <RestTimer seconds={150} />
-          </div>
+          <RestTimer seconds={15} label="FCT Arası (15sn)" />
+          <RestTimer seconds={180} label="Tur Arası (3dk)" />
+          <RestTimer seconds={90} label="Set Arası (90sn)" />
+          <RestTimer seconds={150} label="Ağır Set (2.5dk)" />
         </div>
       </Card>
 
       <div className="pt-2 pb-4">
-        <Link href="/antrenman" className="inline-flex items-center gap-1.5 text-sm font-medium text-accent-blue hover:underline">
-          <span>&larr;</span>
-          <span>Tüm Antrenmanlara Dön</span>
+        <Link href="/antrenman" className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline">
+          <ArrowLeft size={14} />
+          Tüm Antrenmanlara Dön
         </Link>
       </div>
     </div>

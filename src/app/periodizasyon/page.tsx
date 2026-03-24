@@ -9,11 +9,11 @@ import { phases, getCurrentPhase, getWeekInPhase } from '@/data/periodization';
 import { useProgressStore } from '@/store/useProgressStore';
 
 const phaseColorMap: Record<string, { badge: 'blue' | 'orange' | 'red' | 'green' | 'purple'; bar: string }> = {
-  adaptasyon: { badge: 'blue', bar: 'bg-accent-blue' },
-  guc: { badge: 'orange', bar: 'bg-accent-orange' },
-  zirve: { badge: 'red', bar: 'bg-accent-red' },
-  deload: { badge: 'green', bar: 'bg-accent-green' },
-  test: { badge: 'purple', bar: 'bg-accent-purple' },
+  adaptasyon: { badge: 'blue', bar: 'bg-blue-500' },
+  guc: { badge: 'orange', bar: 'bg-amber-500' },
+  zirve: { badge: 'red', bar: 'bg-red-500' },
+  deload: { badge: 'green', bar: 'bg-emerald-500' },
+  test: { badge: 'purple', bar: 'bg-violet-500' },
 };
 
 export default function PeriodizasyonPage() {
@@ -32,8 +32,8 @@ export default function PeriodizasyonPage() {
   }, [programStartDate]);
 
   return (
-    <div className="p-4 md:p-8 max-w-4xl mx-auto space-y-6">
-      <h1 className="text-2xl font-bold gradient-text">Periodizasyon</h1>
+    <div className="max-w-2xl mx-auto px-4 py-8 space-y-6">
+      <h1 className="text-2xl md:text-3xl font-bold gradient-text">Periyodizasyon</h1>
 
       {/* Current week indicator */}
       <Card hover={false} padding="md">
@@ -43,7 +43,7 @@ export default function PeriodizasyonPage() {
             Hafta {currentWeek}/12
           </Badge>
         </div>
-        <ProgressBar value={(currentWeek / 12) * 100} color={phaseColorMap[currentPhase.id]?.bar || 'bg-accent-blue'} height="md" />
+        <ProgressBar value={(currentWeek / 12) * 100} color={phaseColorMap[currentPhase.id]?.bar || 'bg-blue-500'} height="md" />
         <p className="text-xs text-[var(--text-tertiary)] mt-2">
           Şu anki faz: <strong className="text-[var(--text-primary)]">{currentPhase.name}</strong> — Faz haftası {weekInPhase}/{currentPhase.weekEnd - currentPhase.weekStart + 1}
         </p>
@@ -61,7 +61,7 @@ export default function PeriodizasyonPage() {
               key={phase.id}
               hover={false}
               padding="lg"
-              className={isActive ? 'ring-2 ring-accent-blue ring-offset-1 ring-offset-[var(--bg-primary)]' : 'opacity-75'}
+              className={isActive ? 'ring-1 ring-primary/20 shadow-[var(--shadow-lg)]' : 'opacity-75'}
             >
               <div className="flex items-start justify-between mb-3">
                 <div>
@@ -82,25 +82,19 @@ export default function PeriodizasyonPage() {
               <p className="text-sm text-[var(--text-secondary)] mb-3">{phase.description}</p>
 
               <div className="grid grid-cols-2 gap-2 text-xs">
-                <div className="p-2 rounded-lg bg-[var(--bg-secondary)]">
-                  <span className="text-[var(--text-tertiary)]">FCT Yükü</span>
-                  <p className="font-medium text-[var(--text-primary)]">{phase.fctLoad}</p>
-                </div>
-                <div className="p-2 rounded-lg bg-[var(--bg-secondary)]">
-                  <span className="text-[var(--text-tertiary)]">Heavy Yükü</span>
-                  <p className="font-medium text-[var(--text-primary)]">{phase.heavyLoad}</p>
-                </div>
-                <div className="p-2 rounded-lg bg-[var(--bg-secondary)]">
-                  <span className="text-[var(--text-tertiary)]">RPE Hedef</span>
-                  <p className="font-medium text-[var(--text-primary)]">{phase.rpeTarget}</p>
-                </div>
-                <div className="p-2 rounded-lg bg-[var(--bg-secondary)]">
-                  <span className="text-[var(--text-tertiary)]">Aksesuar</span>
-                  <p className="font-medium text-[var(--text-primary)]">{phase.accessoryLoad}</p>
-                </div>
+                {[
+                  { label: 'FCT Yükü', value: phase.fctLoad },
+                  { label: 'Heavy Yükü', value: phase.heavyLoad },
+                  { label: 'RPE Hedef', value: phase.rpeTarget },
+                  { label: 'Aksesuar', value: phase.accessoryLoad },
+                ].map(item => (
+                  <div key={item.label} className="p-2.5 rounded-xl bg-[var(--bg-secondary)]">
+                    <span className="text-[var(--text-tertiary)]">{item.label}</span>
+                    <p className="font-medium text-[var(--text-primary)] mt-0.5">{item.value}</p>
+                  </div>
+                ))}
               </div>
 
-              {/* İpuçları */}
               {phase.tips && phase.tips.length > 0 && (
                 <ul className="mt-3 space-y-1">
                   {phase.tips.map((tip, i) => (
@@ -113,8 +107,8 @@ export default function PeriodizasyonPage() {
               )}
 
               {phase.deloadInfo && (
-                <div className="mt-3 p-2 rounded-lg bg-accent-green/10 border border-accent-green/20">
-                  <p className="text-xs text-accent-green">{phase.deloadInfo}</p>
+                <div className="mt-3 p-2.5 rounded-xl bg-emerald-50">
+                  <p className="text-xs text-emerald-700">{phase.deloadInfo}</p>
                 </div>
               )}
 
@@ -122,7 +116,7 @@ export default function PeriodizasyonPage() {
                 <div className="mt-3">
                   <ProgressBar
                     value={(weekInPhase / phaseWeeks) * 100}
-                    color={colors?.bar || 'bg-accent-blue'}
+                    color={colors?.bar || 'bg-blue-500'}
                     height="sm"
                     label="Faz ilerlemesi"
                     showLabel

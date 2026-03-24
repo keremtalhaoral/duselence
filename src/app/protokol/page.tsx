@@ -2,17 +2,18 @@
 
 import { useMemo } from 'react';
 import Link from 'next/link';
+import { ChevronRight, Dumbbell, GraduationCap, Snowflake, Heart, UtensilsCrossed, Pill, Moon } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { weekSchedule, type ActivityType } from '@/data/schedules';
 
 const dayColorVariants: Record<string, string> = {
-  red: 'bg-accent-red',
-  purple: 'bg-accent-purple',
-  orange: 'bg-accent-orange',
-  cyan: 'bg-accent-cyan',
-  green: 'bg-accent-green',
-  blue: 'bg-accent-blue',
+  red: 'bg-red-500',
+  purple: 'bg-violet-500',
+  orange: 'bg-amber-500',
+  cyan: 'bg-cyan-500',
+  green: 'bg-emerald-500',
+  blue: 'bg-blue-500',
 };
 
 const dayBadgeVariants: Record<string, 'red' | 'purple' | 'orange' | 'cyan' | 'green' | 'blue'> = {
@@ -60,18 +61,18 @@ export default function ProtokolPage() {
   const todayDow = useMemo(() => getTodayDayOfWeek(), []);
 
   return (
-    <div className="px-4 py-6 md:px-8 max-w-3xl mx-auto space-y-6">
-      {/* Baslik */}
+    <div className="max-w-2xl mx-auto px-4 py-8 space-y-6">
+      {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold gradient-text">Haftalik Protokol</h1>
+        <h1 className="text-2xl md:text-3xl font-bold gradient-text">Haftalık Protokol</h1>
         <p className="text-sm text-[var(--text-secondary)] mt-1">
           7 günlük yaşam ve antrenman protokolün
         </p>
       </div>
 
-      {/* Hafta Yapisi Ozet */}
+      {/* Hafta Yapısı Özet */}
       <Card hover={false} padding="md">
-        <h2 className="font-semibold text-sm mb-3">Hafta Yapisi</h2>
+        <h2 className="text-[10px] font-semibold uppercase tracking-widest text-[var(--text-tertiary)] mb-3">Hafta Yapısı</h2>
         <div className="flex gap-1.5">
           {weekSchedule.map((day) => {
             const isToday = day.dayOfWeek === todayDow;
@@ -84,8 +85,8 @@ export default function ProtokolPage() {
                   {day.name.slice(0, 3)}
                 </span>
                 <div
-                  className={`w-full h-2 rounded-full ${dayColorVariants[day.color] ?? 'bg-accent-blue'} ${
-                    isToday ? 'opacity-100 ring-2 ring-white/30' : 'opacity-40'
+                  className={`w-full h-2 rounded-full ${dayColorVariants[day.color] ?? 'bg-blue-500'} ${
+                    isToday ? 'opacity-100 ring-2 ring-offset-2 ring-primary/30' : 'opacity-30'
                   }`}
                 />
               </div>
@@ -94,12 +95,11 @@ export default function ProtokolPage() {
         </div>
       </Card>
 
-      {/* Gun Kartlari */}
+      {/* Gün Kartları */}
       <div className="space-y-3">
         {weekSchedule.map((day) => {
           const isToday = day.dayOfWeek === todayDow;
           const summary = getDaySummary(day.slots);
-          const slotCount = day.slots.length;
           const firstSlot = day.slots[0]?.time ?? '';
           const lastSlot = day.slots[day.slots.length - 1]?.time ?? '';
           const uniqueTypes = [...new Set(day.slots.map((s) => s.type))].filter(
@@ -109,37 +109,26 @@ export default function ProtokolPage() {
           return (
             <Link key={day.id} href={`/protokol/${day.id}`}>
               <Card
-                className={`block mb-3 ${
-                  isToday
-                    ? 'ring-1 ring-accent-blue/40 shadow-[0_0_20px_rgba(59,130,246,0.15)]'
-                    : ''
-                }`}
+                className={`block mb-3 ${isToday ? 'ring-1 ring-primary/20 shadow-[var(--shadow-lg)]' : ''}`}
                 padding="md"
+                hover={true}
               >
                 <div className="flex items-start justify-between gap-3 mb-2">
                   <div className="flex items-center gap-3 min-w-0">
                     <div
-                      className={`w-3 h-3 rounded-full shrink-0 ${
-                        dayColorVariants[day.color] ?? 'bg-accent-blue'
-                      }`}
+                      className={`w-3 h-3 rounded-full shrink-0 ${dayColorVariants[day.color] ?? 'bg-blue-500'}`}
                     />
                     <div className="min-w-0">
                       <div className="flex items-center gap-2">
                         <h3 className="font-semibold text-sm">{day.name}</h3>
-                        {isToday && (
-                          <Badge variant="blue" size="sm">
-                            Bugun
-                          </Badge>
-                        )}
+                        {isToday && <Badge variant="primary" size="sm">Bugün</Badge>}
                       </div>
                       <p className="text-xs text-[var(--text-tertiary)] mt-0.5">
                         {day.nickname}
                       </p>
                     </div>
                   </div>
-                  <Badge variant={dayBadgeVariants[day.color] ?? 'blue'} size="sm">
-                    {day.nickname}
-                  </Badge>
+                  <ChevronRight size={16} className="text-[var(--text-tertiary)] shrink-0 mt-0.5" />
                 </div>
 
                 <p className="text-xs text-[var(--text-secondary)] mb-3 leading-relaxed">
@@ -151,7 +140,7 @@ export default function ProtokolPage() {
                     {uniqueTypes.map((type) => (
                       <span
                         key={type}
-                        className="text-[10px] text-[var(--text-tertiary)] bg-[var(--bg-secondary)] rounded px-1.5 py-0.5"
+                        className="text-[10px] text-[var(--text-tertiary)] bg-[var(--bg-secondary)] rounded-md px-1.5 py-0.5 font-medium"
                       >
                         {activityTypeLabels[type]}
                       </span>

@@ -1,6 +1,6 @@
 'use client';
 
-import { ReactNode } from 'react';
+import { type ReactNode } from 'react';
 
 interface CardProps {
   children: ReactNode;
@@ -16,10 +16,19 @@ const paddings = {
   lg: 'p-5 md:p-6',
 };
 
-export function Card({ children, className = '', hover = true, onClick, padding = 'md' }: CardProps) {
+export function Card({ children, className = '', hover = false, onClick, padding = 'md' }: CardProps) {
   return (
     <div
-      className={`${hover ? 'glass-card' : 'glass-card-static'} ${paddings[padding]} ${onClick ? 'cursor-pointer' : ''} ${className}`}
+      className={`
+        bg-white rounded-2xl shadow-[var(--shadow-md)]
+        ${hover
+          ? 'transition-all duration-200 ease-out hover:shadow-[var(--shadow-lg)] hover:scale-[1.02] hover:-translate-y-0.5 active:scale-[0.98] cursor-pointer'
+          : ''
+        }
+        ${paddings[padding]}
+        ${onClick ? 'cursor-pointer' : ''}
+        ${className}
+      `}
       onClick={onClick}
     >
       {children}

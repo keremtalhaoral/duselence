@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
+import { Check, Sun, Coffee, Sunset, Moon, Dumbbell, Clock, AlertTriangle, FlaskConical, ArrowRight } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { ProgressBar } from '@/components/ui/ProgressBar';
@@ -29,14 +30,14 @@ const TIMING_LABELS: Record<TimingSlot, string> = {
   'yatmadan-önce': 'Yatmadan Önce',
 };
 
-const TIMING_ICONS: Record<TimingSlot, string> = {
-  'sabah-aç': '\u2600\uFE0F',
-  'sabah-kahvaltı': '\uD83E\uDD50',
-  'öğle': '\uD83C\uDF1E',
-  'pre-workout': '\uD83D\uDCAA',
-  'post-workout': '\u2705',
-  'akşam': '\uD83C\uDF19',
-  'yatmadan-önce': '\uD83D\uDE34',
+const TIMING_ICONS: Record<TimingSlot, React.ReactNode> = {
+  'sabah-aç': <Sun size={16} />,
+  'sabah-kahvaltı': <Coffee size={16} />,
+  'öğle': <Sun size={16} />,
+  'pre-workout': <Dumbbell size={16} />,
+  'post-workout': <Check size={16} />,
+  'akşam': <Sunset size={16} />,
+  'yatmadan-önce': <Moon size={16} />,
 };
 
 const SEVERITY_CONFIG: Record<string, { badge: 'critical' | 'red' | 'orange' | 'blue' | 'green'; label: string }> = {
@@ -63,8 +64,6 @@ function getToday(): string {
 }
 
 function getWeeklyIndex(): number {
-  // JS getDay: 0=Sun, 1=Mon ... 6=Sat
-  // weeklySchedule: 0=Mon, 1=Tue ... 6=Sun
   const jsDay = new Date().getDay();
   return jsDay === 0 ? 6 : jsDay - 1;
 }
@@ -123,48 +122,44 @@ export default function TakviyePage() {
   const dayName = dayNames[weekIdx];
 
   return (
-    <div className="min-h-screen p-4 md:p-6 max-w-2xl mx-auto space-y-6">
+    <div className="max-w-2xl mx-auto px-4 py-8 space-y-6">
       {/* Header */}
-      <div className="text-center space-y-2">
-        <h1 className="text-2xl md:text-3xl font-bold gradient-text">
-          Takviye Takibi
-        </h1>
-        <p className="text-sm text-[var(--text-secondary)]">
-          {dayName} &middot; {today}
+      <div>
+        <h1 className="text-2xl md:text-3xl font-bold gradient-text">Takviye Takibi</h1>
+        <p className="text-sm text-[var(--text-secondary)] mt-1">
+          {dayName} · {today}
         </p>
       </div>
 
       {/* Progress */}
-      <Card hover={false} padding="lg">
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-[var(--text-primary)]">
-              Günlük İlerleme
-            </span>
-            <span className="text-sm font-semibold text-[var(--text-primary)]">
-              {takenCount} / {totalCount}
-            </span>
-          </div>
-          <ProgressBar
-            value={progress}
-            color={progress === 100 ? 'bg-accent-green' : 'bg-accent-blue'}
-            height="lg"
-            showLabel
-          />
-          {progress === 100 && (
-            <p className="text-center text-sm text-accent-green font-medium">
-              Tüm takviyeler alındı!
-            </p>
-          )}
+      <Card hover={false} padding="md">
+        <div className="flex items-center justify-between mb-3">
+          <span className="text-sm font-medium text-[var(--text-primary)]">Günlük İlerleme</span>
+          <span className="text-sm font-semibold text-[var(--text-primary)]">
+            {takenCount} / {totalCount}
+          </span>
         </div>
+        <ProgressBar
+          value={progress}
+          color={progress === 100 ? 'bg-emerald-500' : 'bg-primary'}
+          height="lg"
+          showLabel
+        />
+        {progress === 100 && (
+          <p className="text-center text-sm text-emerald-600 font-medium mt-2">
+            Tüm takviyeler alındı!
+          </p>
+        )}
       </Card>
 
       {/* Timing Groups */}
       {grouped.map(({ timing, items }) => (
         <div key={timing} className="space-y-2">
           <div className="flex items-center gap-2 px-1">
-            <span className="text-lg">{TIMING_ICONS[timing]}</span>
-            <h2 className="text-sm font-semibold text-[var(--text-secondary)] uppercase tracking-wider">
+            <div className="text-[var(--text-tertiary)]">
+              {TIMING_ICONS[timing]}
+            </div>
+            <h2 className="text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider">
               {TIMING_LABELS[timing]}
             </h2>
           </div>
@@ -178,37 +173,23 @@ export default function TakviyePage() {
                   key={`${timing}-${supp.id}`}
                   hover={false}
                   padding="sm"
-                  className={
-                    supp.isCritical
-                      ? 'border-2 border-accent-red/40 shadow-[0_0_15px_rgba(239,68,68,0.15)]'
-                      : ''
-                  }
+                  className={supp.isCritical ? 'ring-1 ring-primary/30 shadow-[0_0_15px_rgba(181,43,50,0.1)]' : ''}
                 >
                   <div className="space-y-2">
                     {/* Main row */}
                     <div className="flex items-center gap-3">
                       <button
                         onClick={() => handleToggle(supp.id)}
-                        aria-label={taken ? `${supp.name} alindi olarak isaretlendi` : `${supp.name} alinmadi`}
-                        className={`shrink-0 w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all duration-200 ${
+                        aria-label={taken ? `${supp.name} alındı olarak işaretlendi` : `${supp.name} alınmadı`}
+                        className={`shrink-0 w-6 h-6 rounded-lg flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-90 ${
                           taken
-                            ? 'bg-accent-green border-accent-green text-white'
+                            ? 'bg-emerald-500 text-white shadow-sm'
                             : supp.isCritical
-                              ? 'border-accent-red/60 hover:border-accent-red'
-                              : 'border-[var(--border-card)] hover:border-accent-blue'
+                              ? 'bg-white shadow-[var(--shadow-sm)] text-primary'
+                              : 'bg-white shadow-[var(--shadow-sm)] text-[var(--text-tertiary)]'
                         }`}
                       >
-                        {taken && (
-                          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                            <path
-                              d="M3 7L6 10L11 4"
-                              stroke="currentColor"
-                              strokeWidth="2"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                            />
-                          </svg>
-                        )}
+                        {taken && <Check size={14} strokeWidth={3} />}
                       </button>
 
                       <div className="flex-1 min-w-0">
@@ -238,11 +219,8 @@ export default function TakviyePage() {
                     {supp.warnings && supp.warnings.length > 0 && (
                       <div className="ml-9 space-y-1">
                         {supp.warnings.map((w, i) => (
-                          <div
-                            key={i}
-                            className="flex items-start gap-1.5 text-xs text-accent-red"
-                          >
-                            <span className="shrink-0 mt-0.5">\u26A0\uFE0F</span>
+                          <div key={i} className="flex items-start gap-1.5 text-xs text-primary">
+                            <AlertTriangle size={12} className="shrink-0 mt-0.5" />
                             <span>{w}</span>
                           </div>
                         ))}
@@ -251,7 +229,7 @@ export default function TakviyePage() {
 
                     {/* Explanation */}
                     <div className="ml-9">
-                      <Accordion title="Neden aliyorum?" icon="\uD83E\uDDEC">
+                      <Accordion title="Neden alıyorum?">
                         <p>{supp.explanation}</p>
                       </Accordion>
                     </div>
@@ -266,9 +244,12 @@ export default function TakviyePage() {
       {/* Drug Interactions */}
       {todayInteractions.length > 0 && (
         <div className="space-y-2">
-          <h2 className="text-sm font-semibold text-[var(--text-secondary)] uppercase tracking-wider px-1">
-            \u26A0\uFE0F Etkileşim Uyarıları
-          </h2>
+          <div className="flex items-center gap-2 px-1">
+            <AlertTriangle size={16} className="text-[var(--text-tertiary)]" />
+            <h2 className="text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider">
+              Etkileşim Uyarıları
+            </h2>
+          </div>
 
           <div className="space-y-2">
             {todayInteractions
@@ -283,17 +264,13 @@ export default function TakviyePage() {
                     key={interaction.id}
                     hover={false}
                     padding="sm"
-                    className={
-                      interaction.severity === 'critical'
-                        ? 'border-2 border-accent-red/40'
-                        : ''
-                    }
+                    className={interaction.severity === 'critical' ? 'ring-1 ring-primary/30' : ''}
                   >
                     <div className="space-y-2">
                       <div className="flex items-center justify-between flex-wrap gap-2">
                         <div className="flex items-center gap-2 text-sm font-medium text-[var(--text-primary)]">
                           <span>{supplementNameMap[interaction.supplement1]}</span>
-                          <span className="text-[var(--text-tertiary)]">&harr;</span>
+                          <ArrowRight size={12} className="text-[var(--text-tertiary)]" />
                           <span>{supplementNameMap[interaction.supplement2]}</span>
                         </div>
                         <Badge variant={config.badge}>{config.label}</Badge>
@@ -302,7 +279,7 @@ export default function TakviyePage() {
                         {interaction.description}
                       </p>
                       <p className="text-xs text-[var(--text-tertiary)] italic">
-                        \u2192 {interaction.recommendation}
+                        → {interaction.recommendation}
                       </p>
                     </div>
                   </Card>

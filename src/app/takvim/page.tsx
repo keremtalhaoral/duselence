@@ -4,6 +4,7 @@ import { useState, useMemo, useCallback } from 'react';
 import Link from 'next/link';
 import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, addDays, isSameMonth, isSameDay, addMonths, subMonths } from 'date-fns';
 import { tr } from 'date-fns/locale';
+import { ChevronLeft, ChevronRight, Download, Zap, Dumbbell } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { weekSchedule } from '@/data/schedules';
@@ -11,12 +12,12 @@ import { workoutDays } from '@/data/workouts';
 import { createEvents, type EventAttributes } from 'ics';
 
 const dayColors: Record<string, string> = {
-  red: 'bg-accent-red/20 text-accent-red border-accent-red/30',
-  purple: 'bg-accent-purple/20 text-accent-purple border-accent-purple/30',
-  orange: 'bg-accent-orange/20 text-accent-orange border-accent-orange/30',
-  cyan: 'bg-accent-cyan/20 text-accent-cyan border-accent-cyan/30',
-  green: 'bg-accent-green/20 text-accent-green border-accent-green/30',
-  blue: 'bg-accent-blue/20 text-accent-blue border-accent-blue/30',
+  red: 'bg-red-50 text-red-600',
+  purple: 'bg-violet-50 text-violet-600',
+  orange: 'bg-amber-50 text-amber-600',
+  cyan: 'bg-cyan-50 text-cyan-600',
+  green: 'bg-emerald-50 text-emerald-600',
+  blue: 'bg-blue-50 text-blue-600',
 };
 
 function getJsDayToScheduleDay(jsDay: number): number {
@@ -27,16 +28,13 @@ function generateICSEvents(): EventAttributes[] {
   const events: EventAttributes[] = [];
   const today = new Date();
 
-  // Generate 12 weeks of events
   for (let week = 0; week < 12; week++) {
     for (const schedule of weekSchedule) {
-      // Calculate the date for this day of the week
       const dayOfWeek = schedule.dayOfWeek;
       const currentDayOfWeek = getJsDayToScheduleDay(today.getDay());
       const diff = dayOfWeek - currentDayOfWeek + week * 7;
       const eventDate = addDays(today, diff);
 
-      // Add workout events
       const workout = workoutDays.find(w => w.dayOfWeek === dayOfWeek);
       if (workout) {
         const fitnessSlot = schedule.slots.find(s => s.type === 'fitness');
@@ -44,7 +42,7 @@ function generateICSEvents(): EventAttributes[] {
           const [startH, startM] = fitnessSlot.time.split(':').map(Number);
           const [endH, endM] = fitnessSlot.endTime.split(':').map(Number);
           events.push({
-            title: `💪 ${workout.shortName}`,
+            title: `${workout.shortName}`,
             description: `${workout.name}\nTip: ${workout.type === 'fct' ? 'French Contrast' : 'Heavy'}\nSüre: ~${workout.estimatedDuration}dk\nBölümler: ${workout.sections.map(s => s.name).join(', ')}`,
             start: [eventDate.getFullYear(), eventDate.getMonth() + 1, eventDate.getDate(), startH, startM],
             end: [eventDate.getFullYear(), eventDate.getMonth() + 1, eventDate.getDate(), endH, endM],
@@ -53,13 +51,12 @@ function generateICSEvents(): EventAttributes[] {
         }
       }
 
-      // Add hockey events
       const hockeySlot = schedule.slots.find(s => s.type === 'hokey');
       if (hockeySlot) {
         const [startH, startM] = hockeySlot.time.split(':').map(Number);
         const [endH, endM] = hockeySlot.endTime.split(':').map(Number);
         events.push({
-          title: `🏒 Buz Hokeyi`,
+          title: 'Buz Hokeyi',
           description: hockeySlot.activity,
           start: [eventDate.getFullYear(), eventDate.getMonth() + 1, eventDate.getDate(), startH, startM],
           end: [eventDate.getFullYear(), eventDate.getMonth() + 1, eventDate.getDate(), endH, endM],
@@ -126,15 +123,16 @@ export default function TakvimPage() {
   }, []);
 
   return (
-    <div className="p-4 md:p-8 max-w-4xl mx-auto space-y-6">
+    <div className="max-w-2xl mx-auto px-4 py-8 space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold gradient-text">Takvim</h1>
+        <h1 className="text-2xl md:text-3xl font-bold gradient-text">Takvim</h1>
         <button
           onClick={handleExportICS}
           disabled={exporting}
-          className="px-4 py-2 rounded-xl bg-accent-blue text-white text-xs font-semibold hover:bg-accent-blue/90 transition-colors disabled:opacity-50"
+          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary text-white text-xs font-semibold hover:bg-primary-dark transition-colors duration-200 active:scale-[0.98] disabled:opacity-50"
         >
-          {exporting ? 'Hazırlanıyor...' : 'Takvimi Dışa Aktar (.ics)'}
+          <Download size={14} />
+          {exporting ? 'Hazırlanıyor...' : 'Dışa Aktar (.ics)'}
         </button>
       </div>
 
@@ -143,25 +141,24 @@ export default function TakvimPage() {
         <div className="flex items-center justify-between">
           <button
             onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}
-            className="p-2 rounded-xl hover:bg-[var(--bg-secondary)] transition-colors text-[var(--text-secondary)]"
+            className="w-9 h-9 rounded-xl flex items-center justify-center hover:bg-[var(--bg-secondary)] transition-colors text-[var(--text-secondary)]"
           >
-            ←
+            <ChevronLeft size={18} />
           </button>
-          <h2 className="text-lg font-semibold text-[var(--text-primary)]">
+          <h2 className="text-lg font-semibold text-[var(--text-primary)] capitalize">
             {format(currentMonth, 'MMMM yyyy', { locale: tr })}
           </h2>
           <button
             onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}
-            className="p-2 rounded-xl hover:bg-[var(--bg-secondary)] transition-colors text-[var(--text-secondary)]"
+            className="w-9 h-9 rounded-xl flex items-center justify-center hover:bg-[var(--bg-secondary)] transition-colors text-[var(--text-secondary)]"
           >
-            →
+            <ChevronRight size={18} />
           </button>
         </div>
       </Card>
 
       {/* Calendar grid */}
       <Card hover={false} padding="sm">
-        {/* Day headers */}
         <div className="grid grid-cols-7 mb-2">
           {['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'].map(d => (
             <div key={d} className="text-center text-xs font-medium text-[var(--text-tertiary)] py-2">
@@ -170,7 +167,6 @@ export default function TakvimPage() {
           ))}
         </div>
 
-        {/* Days */}
         <div className="grid grid-cols-7 gap-1">
           {calendarDays.map((date, i) => {
             const schedule = getScheduleForDate(date);
@@ -184,13 +180,14 @@ export default function TakvimPage() {
                 key={i}
                 href={schedule ? `/protokol/${schedule.id}` : '#'}
                 className={`
-                  relative p-1.5 md:p-2 rounded-xl text-center transition-all min-h-[60px] md:min-h-[80px] flex flex-col items-center gap-0.5 border
+                  relative p-1.5 md:p-2 rounded-xl text-center transition-all duration-200 min-h-[60px] md:min-h-[80px] flex flex-col items-center gap-0.5
+                  hover:shadow-[var(--shadow-sm)] active:scale-[0.97]
                   ${isCurrentMonth ? 'opacity-100' : 'opacity-30'}
-                  ${isToday ? 'ring-2 ring-accent-blue ring-offset-1 ring-offset-[var(--bg-primary)]' : ''}
-                  ${colorClass || 'border-transparent'}
+                  ${isToday ? 'ring-1 ring-primary/30 shadow-[var(--shadow-md)]' : ''}
+                  ${colorClass || 'bg-transparent'}
                 `}
               >
-                <span className={`text-xs md:text-sm font-medium ${isToday ? 'text-accent-blue font-bold' : 'text-[var(--text-primary)]'}`}>
+                <span className={`text-xs md:text-sm font-medium ${isToday ? 'text-primary font-bold' : 'text-[var(--text-primary)]'}`}>
                   {format(date, 'd')}
                 </span>
                 {schedule && isCurrentMonth && (
@@ -199,8 +196,11 @@ export default function TakvimPage() {
                   </span>
                 )}
                 {workout && isCurrentMonth && (
-                  <span className="text-[8px] md:text-[10px] font-medium mt-auto">
-                    {workout.type === 'fct' ? '⚡' : '🏋️'}
+                  <span className="mt-auto">
+                    {workout.type === 'fct'
+                      ? <Zap size={10} className="text-violet-500" />
+                      : <Dumbbell size={10} className="text-amber-500" />
+                    }
                   </span>
                 )}
               </Link>
@@ -211,15 +211,21 @@ export default function TakvimPage() {
 
       {/* Legend */}
       <Card hover={false} padding="md">
-        <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-3">Gösterim</h3>
+        <h3 className="text-[10px] font-semibold uppercase tracking-widest text-[var(--text-tertiary)] mb-3">Gösterim</h3>
         <div className="flex flex-wrap gap-2">
           {weekSchedule.map(day => (
             <Badge key={day.id} variant={day.color === 'red' ? 'red' : day.color === 'purple' ? 'purple' : day.color === 'orange' ? 'orange' : day.color === 'cyan' ? 'cyan' : day.color === 'green' ? 'green' : 'blue'}>
               {day.nickname}
             </Badge>
           ))}
-          <Badge variant="default">⚡ FCT</Badge>
-          <Badge variant="default">🏋️ Ağır</Badge>
+          <div className="flex items-center gap-1">
+            <Zap size={10} className="text-violet-500" />
+            <span className="text-[10px] text-[var(--text-tertiary)]">FCT</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <Dumbbell size={10} className="text-amber-500" />
+            <span className="text-[10px] text-[var(--text-tertiary)]">Ağır</span>
+          </div>
         </div>
       </Card>
     </div>
